@@ -8,6 +8,8 @@
 #include <QSystemTrayIcon>
 #include <QQmlContext>
 
+#include <functions.h>
+
 // Объявляем пользовательский тип данных для работы с иконкой в QML
 Q_DECLARE_METATYPE(QSystemTrayIcon::ActivationReason)
 
@@ -45,5 +47,7 @@ int main(int argc, char *argv[])
     //     // Устанавливаем нужные флаги окна
     //     qmlWindow->setFlags(Qt::FramelessWindowHint | Qt::WindowTransparentForInput | Qt::WindowStaysOnTopHint);
     // }
+
+
     return app.exec();
 }

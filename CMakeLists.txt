@@ -27,6 +27,7 @@ qt_add_qml_module(appBerry
         Main.qml
         # SOURCES inc/tray.h
         RESOURCES images/appIcons/trayIcon.png images/Berry/test.gif images/Berry/testDialog.png images/Berry/testRectangle.gif images/einvironment/dialog.png
+        SOURCES inc/functions.h
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
