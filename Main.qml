@@ -13,7 +13,10 @@ ApplicationWindow {
     property int posX: 0
     property int posY: 0
 
-    property int moveValue: 3
+    property int moveValue: 2
+
+    property int counter: 0
+    property int standIterations: 3
 
     Timer {
         id: moveTimer
@@ -23,6 +26,57 @@ ApplicationWindow {
         onTriggered: {
             horizontalMove()
         }
+    }
+
+    Timer {
+        id: standTimer
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: {
+            if (counter < standIterations) {
+                standHappyBerryFirstFrame();
+            }
+            else {
+                standHappyBerry();
+            }
+        }
+    }
+    function stopSprits(){
+        standTimer.running=false
+        for (let i = 0; i < berry.children.length; i++) {
+            berry.children[i].visible = false;
+        }
+    }
+
+    function standHappyBerry(){
+        stopSprits();
+        standHappy.visible = true;
+        counter = 0;
+        standTimer.running = true
+    }
+    function standHappyBerryFirstFrame(){
+        counter++;
+        stopSprits();
+        standHappyFirstFrame.visible = true;
+        standTimer.running = true
+    }
+
+    function rightHappyMove() {
+        stopSprits();
+        moveHappyRight.visible = true;
+    }
+    function topHappyMove() {
+        stopSprits();
+        moveHappyTop.visible = true;
+    }
+    function leftHappyMove() {
+        stopSprits();
+        moveHappyLeft.visible = true;
+    }
+    function bottomHappyMove() {
+        stopSprits();
+        moveHappyBottom.visible = true;
     }
 
     function deltaMove(Y, y, X, x) {
@@ -35,7 +89,6 @@ ApplicationWindow {
         let k = dy/dx;
         let xMove = k * moveValue / Math.sqrt(1+ k * k)
         let yMove = moveValue / Math.sqrt(1+ k * k)
-        // console.log(xMove, yMove);
 
         return {x: xMove, y: yMove}
     }
@@ -47,8 +100,13 @@ ApplicationWindow {
         let coordinates = deltaMove(posX, berryX, posY, berryY);
         let x = coordinates.x;
         let y = coordinates.y;
-        console.log(berryX, berryY);
-        if (posX > berryX && posY > berryY) {
+        if (x === 0 && y === 0){
+            standTimer.running = true;
+            console.log("stop");
+            standHappyBerryFirstFrame();
+            return
+        }
+        else if (posX > berryX && posY > berryY) {
             berryEnviroinment.x += x;
             berryEnviroinment.y += y;
         }
@@ -65,12 +123,32 @@ ApplicationWindow {
             berryEnviroinment.y -= y;
         }
 
+
+        let tg = y/x;
+        console.log(posY - berryY);
+        if (tg > -1 && tg <= 1 && posX - berryX > 0){
+            console.log("right");
+            rightHappyMove();
+        }
+        else if ((tg > 1 || tg < -1) && posY - berryY < 0) {
+            console.log("top");
+            topHappyMove();
+        }
+        else if (tg > -1 && tg <= 1 && posX - berryX < 0) {
+            console.log("left");
+            leftHappyMove();
+        }
+        else if ((tg > 1 || tg < -1) && posY - berryY > 0) {
+            console.log("bottom");
+            bottomHappyMove();
+        }
+
     }
 
 
     QSystemTrayIcon {
         id: systemTray
-        // visible: true
+
         // Инициализация
         Component.onCompleted: {
             icon = iconTray
@@ -99,11 +177,7 @@ ApplicationWindow {
                 // systemTray.visible = false
                 systemTray.hide()
                 Qt.quit()
-        }
-
-        // MouseArea {
-        //     anchors.fill: parent
-        // }
+            }
         }
     }
 
@@ -120,6 +194,7 @@ ApplicationWindow {
 
             onClicked: {
                 moveTimer.running = false
+                standHappyBerryFirstFrame();
                 mainWindow.flags = Qt.FramelessWindowHint | Qt.WindowTransparentForInput | Qt.WindowStaysOnTopHint
             }
             onPositionChanged: {
@@ -128,7 +203,6 @@ ApplicationWindow {
                 }
                 else if (mouse.x > container.width - berry.width/2 - berryEnviroinment.width/2) {
                     posX = container.width - berry.width/2 - berryEnviroinment.width/2 - 5
-                    // console.log("posX = ", container.width - berry.width/2)
                 }
                 else {
                     posX = mouse.x
@@ -154,46 +228,102 @@ ApplicationWindow {
             border.width: 2
             x: berry.width/2
             y: berry.height/2
-            // anchors.horizontalCenter: parent.horizontalCenter
-            // anchors.bottom: parent.bottom
-            AnimatedImage
-            {
+            Rectangle {
                 id: berry
-
                 width: 200
                 height: 200
-                // antialiasing: true
-                // asynchronous: true
-                // scale: 1
-                // horizontalAlignment: AnimatedImage.AlignHCenter
-                // verticalAlignment: AnimatedImage.AlignVCenter
-
-                cache: true
-                // source: "../Images/Berry/15-7.gif"
-                source: "Images/Berry/test.gif"
-                // anchors.bottom: parent.bottom
-                // speed: 1
-                // anchors.horizontalCenter: parent.horizontalCenter
+                color: "transparent"
                 anchors.left: parent.left
                 anchors.bottom: parent.bottom
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        // berryEnviroinment.x += 1
-                    }
+
+                AnimatedSprite {
+                    id: standHappy
+                    antialiasing: false
+                    interpolate: false
+                    width: 200
+                    height: 200
+                    source: "Images/Berry/happy/stand_5.png"
+                    frameWidth: 200
+                    frameHeight: 200
+                    frameCount: 5
+                    frameDuration: 200
+                }
+
+                AnimatedSprite {
+                    id: standHappyFirstFrame
+                    antialiasing: false
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "Images/Berry/happy/stand_5.png"
+                    frameCount: 1
+                    frameWidth: 200
+                    frameHeight: 200
+                    frameDuration: 1000
+                }
+                AnimatedSprite {
+                    id: moveHappyRight
+                    antialiasing: false
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "Images/Berry/happy/moveRight_8.png"
+                    frameCount: 8
+                    frameWidth: 200
+                    frameHeight: 200
+                    frameDuration: 200
+                }
+                AnimatedSprite {
+                    id: moveHappyLeft
+                    antialiasing: false
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "Images/Berry/happy/moveLeft_8.png"
+                    frameCount: 8
+                    frameWidth: 200
+                    frameHeight: 200
+                    frameDuration: 200
+                }
+                AnimatedSprite {
+                    id: moveHappyBottom
+                    antialiasing: false
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "Images/Berry/happy/moveBottom_6.png"
+                    frameCount: 6
+                    frameWidth: 200
+                    frameHeight: 200
+                    frameDuration: 200
+                }
+                AnimatedSprite {
+                    id: moveHappyTop
+                    antialiasing: false
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "Images/Berry/happy/moveTop_6.png"
+                    frameCount: 6
+                    frameWidth: 200
+                    frameHeight: 200
+                    frameDuration: 200
                 }
 
             }
+
             Image {
                 id: dialog
+                visible: false
                 width: 250
-                // height: 250
                 source: "Images/einvironment/dialog.png"
                 anchors.right: parent.right
                 anchors.top: parent.top
-                // x: 150
-                // y: 120
-
             }
         }
 

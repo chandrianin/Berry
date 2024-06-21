@@ -8,7 +8,7 @@
 #include <QSystemTrayIcon>
 #include <QQmlContext>
 
-#include <functions.h>
+// #include <functions.h>
 
 // Объявляем пользовательский тип данных для работы с иконкой в QML
 Q_DECLARE_METATYPE(QSystemTrayIcon::ActivationReason)
@@ -16,6 +16,8 @@ Q_DECLARE_METATYPE(QSystemTrayIcon::ActivationReason)
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
+    app.setWindowIcon(QIcon("Images/appIcons/trayIcon.ico"));
 
     QQmlApplicationEngine engine;
 
@@ -26,7 +28,6 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QSystemTrayIcon::ActivationReason>("ActivationReason");
     // Устанавливаем Иконку в контекст движка
     engine.rootContext()->setContextProperty("iconTray", QIcon("Images/appIcons/trayIcon.png"));
-    engine.rootContext()->setContextProperty("colorVar", "transparent");
 
 
     const QUrl url(u"/Berry/Main.qml"_qs);

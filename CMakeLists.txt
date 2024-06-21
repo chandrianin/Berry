@@ -7,7 +7,7 @@ list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.6./msvc2019_64/lib/cmake")
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Quick Widgets QuickWidgets)
 
-include_directories(inc)
+# include_directories(inc)
 set(CMAKE_AUTORCC ON)
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -15,9 +15,12 @@ qt_standard_project_setup(REQUIRES 6.5)
 #   PRIVATE
 #     src/tray.cpp
 # )
+enable_language("RC")
+set (WIN32_RESOURCES "${CMAKE_CURRENT_SOURCE_DIR}/Images/appIcons/favicon.rc")
 
 qt_add_executable(appBerry
     main.cpp
+    ${WIN32_RESOURCES}
 )
 
 qt_add_qml_module(appBerry
@@ -25,9 +28,8 @@ qt_add_qml_module(appBerry
     VERSION 1.0
     QML_FILES
         Main.qml
-        # SOURCES inc/tray.h
         RESOURCES images/appIcons/trayIcon.png images/Berry/test.gif images/Berry/testDialog.png images/Berry/testRectangle.gif images/einvironment/dialog.png
-        SOURCES inc/functions.h
+        RESOURCES images/appIcons/trayIcon.png images/Berry/happy/stand_5.png images/Berry/test.gif images/Berry/testDialog.png images/Berry/testRectangle.gif images/einvironment/dialog.png
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
