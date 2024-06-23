@@ -41,14 +41,7 @@ int main(int argc, char *argv[])
 
     engine.load(url);
 
-    // QObject *rootObject = engine.rootObjects().value(0);
-    // QQuickWindow *qmlWindow = qobject_cast<QQuickWindow *>(rootObject);
-
-    // if (qmlWindow) {
-    //     // Устанавливаем нужные флаги окна
-    //     qmlWindow->setFlags(Qt::FramelessWindowHint | Qt::WindowTransparentForInput | Qt::WindowStaysOnTopHint);
-    // }
-
+    QMetaObject::invokeMethod(engine.rootObjects().first(), "say", Q_ARG(QVariant, "Как и с обычным питомцем, ты должен играть со мной, развлекать меня и просто хорошо проводить время. Буль-буль, бла бла бла бла"));
 
     return app.exec();
 }

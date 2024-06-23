@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(Berry VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.6./msvc2019_64/lib/cmake")
+list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.6.3/mingw_64/lib/cmake")
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Quick Widgets QuickWidgets)
 
@@ -11,10 +11,6 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Quick Widgets QuickWidgets)
 set(CMAKE_AUTORCC ON)
 qt_standard_project_setup(REQUIRES 6.5)
 
-# target_sources(appBerry
-#   PRIVATE
-#     src/tray.cpp
-# )
 enable_language("RC")
 set (WIN32_RESOURCES "${CMAKE_CURRENT_SOURCE_DIR}/Images/appIcons/favicon.rc")
 
@@ -28,8 +24,10 @@ qt_add_qml_module(appBerry
     VERSION 1.0
     QML_FILES
         Main.qml
-        RESOURCES images/appIcons/trayIcon.png images/Berry/test.gif images/Berry/testDialog.png images/Berry/testRectangle.gif images/einvironment/dialog.png
-        RESOURCES images/appIcons/trayIcon.png images/Berry/happy/stand_5.png images/Berry/test.gif images/Berry/testDialog.png images/Berry/testRectangle.gif images/einvironment/dialog.png
+        RESOURCES images/appIcons/favicon.ico images/appIcons/favicon.rc images/appIcons/trayIcon.png images/Berry/happy/moveBottom_6.png images/Berry/happy/moveLeft_8.png images/Berry/happy/moveRight_8.png images/Berry/happy/moveTop_6.png images/Berry/happy/stand_10.png images/Berry/happy/stand_5.png images/Berry/charging.png images/environment/chargingModule.png images/environment/dialog.png
+        RESOURCES audio/singleBerryTalk.wav audio/specialSingleBerryTalk.wav
+        RESOURCES font/BalsamiqSans-BoldItalic.ttf
+
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -57,23 +55,7 @@ install(TARGETS appBerry
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-set(PATH_TO_BERRY "Images/Berry")
-
-file(GLOB BERRY_FILES "${PATH_TO_BERRY}/*")
-foreach(file ${BERRY_FILES})
-    file(COPY ${file} DESTINATION ${PATH_TO_BERRY})
-endforeach()
-
-
-set(PATH_TO_EINVIRONMENT "Images/einvironment")
-
-file(GLOB EINVIRONMENT_FILES "${PATH_TO_EINVIRONMENT}/*")
-foreach(file ${EINVIRONMENT_FILES})
-    install(FILES ${file} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-    file(COPY ${file} DESTINATION ${PATH_TO_EINVIRONMENT})
-endforeach()
-
-set(PATH_TO_ICONS "Images/appIcons")
+set(PATH_TO_ICONS "images/appIcons")
 
 file(GLOB ICONS_FILES "${PATH_TO_ICONS}/*")
 foreach(file ${ICONS_FILES})
