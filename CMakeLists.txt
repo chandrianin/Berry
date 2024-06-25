@@ -28,11 +28,17 @@ qt_add_qml_module(appBerry
     VERSION 1.0
     QML_FILES
         Main.qml
-        RESOURCES images/appIcons/favicon.ico images/appIcons/favicon.rc images/appIcons/trayIcon.png images/Berry/happy/moveBottom_6.png images/Berry/happy/moveLeft_8.png images/Berry/happy/moveRight_8.png images/Berry/happy/moveTop_6.png images/Berry/happy/stand_5.png images/Berry/charging.png images/environment/chargingModule.png images/environment/dialog.png
-        RESOURCES images/Berry/kickBallEnd.png images/Berry/kickBallStart.png
-        RESOURCES audio/singleBerryTalk.wav audio/berryTalk.mp3
+        RESOURCES images/appIcons/favicon.ico images/appIcons/favicon.rc images/appIcons/trayIcon.png
+
+        RESOURCES images/environment/ball.png images/Berry/kickBallEnd.png images/Berry/kickBallStart.png images/Berry/charging.png images/environment/chargingModule.png images/environment/dialog.png images/Berry/hi.png
+        RESOURCES images/Berry/happy/moveBottom_6.png images/Berry/happy/moveLeft_8.png images/Berry/happy/moveRight_8.png images/Berry/happy/stand_5.png images/Berry/happy/moveTop_6.png
+        RESOURCES images/Berry/sad/moveBottom_6.png   images/Berry/sad/moveLeft_8.png   images/Berry/sad/moveRight_8.png   images/Berry/sad/stand_5.png
+        RESOURCES images/Berry/crazy/moveBottom_6.png images/Berry/crazy/moveLeft_8.png images/Berry/crazy/moveRight_8.png images/Berry/crazy/stand_5.png
+
+
+        RESOURCES audio/singleBerryTalk.wav audio/berryTalk.mp3 audio/ballKick.wav
+
         RESOURCES font/BalsamiqSans-BoldItalic.ttf
-        RESOURCES images/environment/ball.png
 
 )
 
@@ -70,7 +76,7 @@ foreach(file ${ICONS_FILES})
 endforeach()
 
 set(QT_PATH "C:/Qt/6.6.3/mingw_64")
-add_custom_command(TARGET appBerry POST_BUILD
-    COMMAND "${QT_PATH}/bin/windeployqt.exe" --release $<TARGET_FILE:appBerry>
-    COMMENT "Deploying dependencies with windeployqt"
-)
+# add_custom_command(TARGET appBerry POST_BUILD
+#     COMMAND "${QT_PATH}/bin/windeployqt.exe" --release $<TARGET_FILE:appBerry>
+#     COMMENT "Deploying dependencies with windeployqt"
+# )
