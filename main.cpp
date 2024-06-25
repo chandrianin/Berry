@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
     engine.load(url);
 
-    QMetaObject::invokeMethod(engine.rootObjects().first(), "say", Q_ARG(QVariant, "Как и с обычным питомцем, ты должен играть со мной, развлекать меня и просто хорошо проводить время. Буль-буль, бла бла бла бла"));
+    // QMetaObject::invokeMethod(engine.rootObjects().first(), "say", Q_ARG(QVariant, "Как и с обычным питомцем, ты должен играть со мной, развлекать меня и просто хорошо проводить время. Буль-буль, бла бла бла бла"));
 
     return app.exec();
 }

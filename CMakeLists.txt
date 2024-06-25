@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Berry VERSION 0.1 LANGUAGES CXX)
 
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CMAKE_PREFIX_PATH "C:/Qt/Static/6.6.3/mingw_64/lib/cmake")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
+# set(CMAKE_EXE_LINKER_FLAGS "-static")
 list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.6.3/mingw_64/lib/cmake")
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Quick Widgets QuickWidgets)
@@ -24,9 +28,11 @@ qt_add_qml_module(appBerry
     VERSION 1.0
     QML_FILES
         Main.qml
-        RESOURCES images/appIcons/favicon.ico images/appIcons/favicon.rc images/appIcons/trayIcon.png images/Berry/happy/moveBottom_6.png images/Berry/happy/moveLeft_8.png images/Berry/happy/moveRight_8.png images/Berry/happy/moveTop_6.png images/Berry/happy/stand_10.png images/Berry/happy/stand_5.png images/Berry/charging.png images/environment/chargingModule.png images/environment/dialog.png
-        RESOURCES audio/singleBerryTalk.wav audio/specialSingleBerryTalk.wav
+        RESOURCES images/appIcons/favicon.ico images/appIcons/favicon.rc images/appIcons/trayIcon.png images/Berry/happy/moveBottom_6.png images/Berry/happy/moveLeft_8.png images/Berry/happy/moveRight_8.png images/Berry/happy/moveTop_6.png images/Berry/happy/stand_5.png images/Berry/charging.png images/environment/chargingModule.png images/environment/dialog.png
+        RESOURCES images/Berry/kickBallEnd.png images/Berry/kickBallStart.png
+        RESOURCES audio/singleBerryTalk.wav audio/berryTalk.mp3
         RESOURCES font/BalsamiqSans-BoldItalic.ttf
+        RESOURCES images/environment/ball.png
 
 )
 

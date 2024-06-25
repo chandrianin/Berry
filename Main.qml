@@ -11,34 +11,47 @@ ApplicationWindow {
     visible: true
     color: "transparent"
 
-    property int posX: 0
-    property int posY: 0
+    property int    posX:                     0
+    property int    posY:                     0
 
-    property int chargePosX: 0
-    property int chargePosY: 0
+    property int    chargePosX:               0
+    property int    chargePosY:               0
 
+    property real   moveValue:                3
 
-    property real moveValue: 3.5
+    property int    standCounter:             0
+    property int    standIterations:          10
 
-    property int standCounter: 0
-    property int standIterations: 10
+    property int    activeChargeIterations:   20
+    property int    activeChargeCounter:      0
+    property int    disabledChargindInterval: 10000
 
-    property int activeChargeIterations: 20
-    property int activeChargeCounter: 0
-    property int disabledChargindInterval: 10000
+    property string targetText:               ""
+    property int    targetTextLength:         0
+    property string newText:                  ""
+    property int    symbolIndex:              0
 
-    property string targetText: ""
-    property int targetTextLength: 0
-    property string newText: ""
-    property int symbolIndex: 0
+    property bool   isSay:                    false
+    // property bool menuVisible: false
+    // property int menuPosX: 0
+    // property int menuPosY: 0
+
+    property bool   withBall:                 false
+    property real   ballTg:                   0
+    property real   ballSpeedRatio:           0.999
+    property real   ballCurrentSpeed:         15
+    property real   ballOxDirection:          0
+    property int    ballCheckDelay:           250
+    property int    ballMaxCheckDelay:        9000
+    property int    ballCurrentCheckDelay:    0
 
     Timer {
         id: moveTimer
-        interval: 10 // Интервал в миллисекундах
+        interval: 16 // Интервал в миллисекундах
         repeat: true // Повторять выполнение
         running: false // Не запускать таймер сразу
         onTriggered: {
-            horizontalMove()
+            berryMove()
         }
     }
 
@@ -49,10 +62,10 @@ ApplicationWindow {
         repeat: true
         onTriggered: {
             if (standCounter < standIterations) {
-                standHappyBerryFirstFrame();
+                standBerryFirstFrame();
             }
             else {
-                standHappyBerry();
+                standBerry();
             }
         }
     }
@@ -63,10 +76,11 @@ ApplicationWindow {
         repeat: false
         interval: chargingBerry.frameCount * chargingBerry.frameDuration
         onTriggered: {
-            standHappyBerryFirstFrame();
+            standBerryFirstFrame();
             moveTimer.running = true;
 
             console.log("charging disabled");
+            //TODO добавить анимцию ухода chargingModule
             activationChargeTimer.running = false;
             waitChargingTimer.running = true;
         }
@@ -82,12 +96,12 @@ ApplicationWindow {
                     waitChargingTimer.interval += disabledChargindInterval;
                     console.log("chargind block");
                 }
-                else {
-                    console.log("charging enabled");
-                    activationChargeTimer.running = true;
-                    //TODO добавить анимцию появления chargingModule
-                    chargingModule.visible = true;
-                }
+            }
+            else {
+                console.log("charging enabled");
+                activationChargeTimer.running = true;
+                //TODO добавить анимцию появления chargingModule
+                chargingModule.visible = true;
             }
         }
     }
@@ -117,12 +131,71 @@ ApplicationWindow {
     }
 
     Timer {
+        id: endingBallEndTimer
+        running: false
+        repeat: false
+        interval: kickingBallEndBerry.frameCount * kickingBallEndBerry.frameDuration
+        onTriggered: {
+            kickingBallEndBerry.visible = false
+            console.log("закончил пинать")
+            standBerryFirstFrame()
+        }
+    }
+    Timer {
+        id: ballCreatingTimer
+        running: false
+        repeat: false
+        interval: 25 * kickingBallStartBerry.frameDuration
+        onTriggered: {
+            console.log("мяч есть")
+            ball.x = berryEnvironment.x + berry.x
+            ball.y = berryEnvironment.y + berry.y + berry.height - ball.height
+            ballImage.visible = true // появление мяча
+        }
+    }
+
+    Timer {
+        id: endingBallStartTimer
+        running: false
+        repeat: false
+        interval: kickingBallStartBerry.frameCount * kickingBallStartBerry.frameDuration
+        onTriggered: {
+            kickingBallStartBerry.visible = false
+            ball.x = berryEnvironment.x + berry.x
+            ball.y = berryEnvironment.y + berry.y + berry.height - ball.height
+            ballTg = (chargePosY - ball.y + ball.width/2)/(chargePosX - ball.x + ball.width/2);
+
+            ballTg = chargePosX > ball.x + ball.width/2 ? -ballTg : ballTg;
+            ballOxDirection = -Math.abs(chargePosX - ball.x - ball.width/2)
+
+            ballMoveTimer.running = true
+            console.log("пнул мяч")
+            kickingBallEndBerry.visible = true
+            endingBallEndTimer.running = true
+        }
+    }
+
+
+    Timer {
+        id: ballMoveTimer
+        repeat: true
+        running: false
+        interval: 15
+        onTriggered: {
+            // console.log(ballCheckDelay, ballCurrentSpeed);
+            // console.log(ballCurrentCheckDelay);
+            ballCurrentCheckDelay += ballMoveTimer.interval
+            ballMove();
+        }
+    }
+
+    Timer {
         id: action_1_stopTimer
         interval: action_1.frameCount * action_1.frameDuration
         running: false
         repeat: false
         onTriggered: {
-            standHappyBerryFirstFrame()
+            standBerryFirstFrame()
             moveTimer.running = true
         }
     }
@@ -132,7 +205,7 @@ ApplicationWindow {
         running: false
         repeat: false
         onTriggered: {
-            standHappyBerryFirstFrame()
+            standBerryFirstFrame()
             moveTimer.running = true
         }
     }
@@ -142,7 +215,7 @@ ApplicationWindow {
         running: false
         repeat: false
         onTriggered: {
-            standHappyBerryFirstFrame()
+            standBerryFirstFrame()
             moveTimer.running = true
         }
     }
@@ -157,7 +230,7 @@ ApplicationWindow {
                 newText += targetText[symbolIndex];
                 textToDialog.text = newText;
                 if (symbolIndex + 1 < targetTextLength && targetText[symbolIndex + 1] === " ") {
-                    specialSymbolSound.play();
+                    // specialSymbolSound.play();
                 } else if (targetText[symbolIndex] !== " ") {
                     symbolSound.play();
                 }
@@ -166,23 +239,29 @@ ApplicationWindow {
                 symbolIndex += 1;
             }
             else {
+                isSay = false;
+
                 symbolIndex = 0;
                 targetTextLength = 0;
                 targetText = "";
                 newText = "";
                 textOutputTimer.running = false;
+                textDeleteTimer.running = true;
             }
-            // console.log(symbolIndex);
         }
     }
+    Timer {
+        id: textDeleteTimer
+        repeat: false
+        running: false
+        interval: 1000
+        onTriggered: {
+            //TODO animation
+            textToDialog.text = "";
+            dialog.visible = false;
 
-    function test(){
-        console.log("happy");
-        console.log(dialog.width);
-        console.log(dialog.height);
+        }
     }
-
-
 
     function stopSprits(){
         standTimer.running=false
@@ -191,39 +270,140 @@ ApplicationWindow {
         }
     }
 
-    function standHappyBerry(){
+    function standBerry(){
         stopSprits();
-        standHappy.visible = true;
+        stand.visible = true;
         standCounter = 0;
         standTimer.running = true
     }
-    function standHappyBerryFirstFrame(){
+    function standBerryFirstFrame(){
         standCounter++;
         stopSprits();
-        standHappyFirstFrame.visible = true;
+        standFirstFrame.visible = true;
         standTimer.running = true
     }
 
-    function rightHappyMove() {
+    function rightMove() {
         stopSprits();
-        moveHappyRight.visible = true;
+        moveRight.visible = true;
     }
-    function topHappyMove() {
+    function topMove() {
         stopSprits();
-        moveHappyTop.visible = true;
+        moveTop.visible = true;
     }
-    function leftHappyMove() {
+    function leftMove() {
         stopSprits();
-        moveHappyLeft.visible = true;
+        moveLeft.visible = true;
     }
-    function bottomHappyMove() {
+    function bottomMove() {
         stopSprits();
-        moveHappyBottom.visible = true;
+        moveBottom.visible = true;
     }
 
     function charge(){
         stopSprits();
         chargingBerry.visible = true;
+    }
+    function kickBall(){
+        moveTimer.running = false;
+        stopSprits();
+
+        kickingBallStartBerry.visible = true;
+        withBall = true;
+        console.log("пинающий Б отобржаен")
+
+
+        endingBallStartTimer.running = true;
+        ballCreatingTimer.running = true;
+
+    }
+    function ballMove() {
+        // проверка касания границ
+        let rightCheck  = Math.abs(ball.x + ball.width - container.width)   < ballCurrentSpeed
+        let topCheck    = Math.abs(ball.y)                                  < ballCurrentSpeed
+        let leftCheck   = Math.abs(ball.x)                                  < ballCurrentSpeed
+        let bottomCheck = Math.abs(ball.y + ball.height - container.height) < ballCurrentSpeed
+        // console.log(rightCheck, topCheck, leftCheck, bottomCheck);
+
+        // // проверка касания границы Berry
+        // let rightBerryCheck  = Math.abs(ball.x + ball.width - berryEnvironment.x - berry.x)   < ballCurrentSpeed && berryEnvironment.y + berry.y - berry.height/10 < ball.y + ball.height/2 && ball.y + ball.height/2 < berryEnvironment.y + berry.y + berry.height*11/10 && ball.x < berryEnvironment.x + berry.x
+        // let topBerryCheck    = Math.abs(ball.y - berryEnvironment.y - berry.y - berry.height) < ballCurrentSpeed && berryEnvironment.x + berry.x - berry.width/10  < ball.x + ball.widht/2  && ball.x + ball.widht/2  < berryEnvironment.x + berry.x + berry.width *11/10 && ball.y > berryEnvironment.y + berry.y + berry.height
+        // let leftBerryCheck   = Math.abs(ball.x - berryEnvironment.x - berry.x - berry.width)  < ballCurrentSpeed && berryEnvironment.y + berry.y - berry.height/10 < ball.y + ball.height/2 && ball.y + ball.height/2 < berryEnvironment.y + berry.y + berry.height*11/10 && ball.x > berryEnvironment.x + berry.x + berry.width
+        // let bottomBerryCheck = Math.abs(ball.y + ball.height - berryEnvironment.x - berry.x)  < ballCurrentSpeed && berryEnvironment.x + berry.x - berry.width/10  < ball.x + ball.widht/2  && ball.x + ball.widht/2  < berryEnvironment.x + berry.x + berry.width *11/10 && ball.y < berryEnvironment.y + berry.y
+
+        // // проверка касания блока зарядки (может коснуться только сверху и справа)
+        // let leftChargeCheck   = Math.abs(ball.x - chargingModule.x - chargingModule.width)                < ballCurrentSpeed && chargingModule.y < ball.y && ball.y < chargingModule.y + chargingModule.height
+        // let bottomChargeCheck = Math.abs(ball.y + ball.height - chargingModule.y - chargingModule.height) < ballCurrentSpeed && chargingModule.x < ball.x && ball.x < chargingModule.x + chargingModule.width
+
+        // // console.log(Math.abs(ball.y + ball.height - container.height));
+        // // console.log(rightBerryCheck, topBerryCheck, leftBerryCheck, bottomBerryCheck, ballCurrentCheckDelay, ballCheckDelay);
+        // // console.log(Math.abs(ball.y - berryEnvironment.y - berry.y - berry.height));
+
+
+        // if (ballCurrentCheckDelay > ballCheckDelay) {
+        //     if (rightBerryCheck || topBerryCheck || leftBerryCheck || bottomBerryCheck) {
+        //         console.log(rightBerryCheck, topBerryCheck, leftBerryCheck, bottomBerryCheck);
+        //         // console.log(Math.abs(ball.x + ball.width - berryEnvironment.x - berry.x), ballCurrentSpeed)
+        //         // console.log(berryEnvironment.y + berry.y - berry.height/4, ball.y,  ball.y,  berryEnvironment.y + berry.y + berry.height*5/4);
+        //         // ballMoveTimer.running = false;
+        //     }
+        //     if (leftCheck || rightCheck || leftBerryCheck || rightBerryCheck || leftChargeCheck) {
+        //         ballTg = -ballTg;                   // тангенс угла наклона к Ox меняется на противоположный
+        //         ballOxDirection = -ballOxDirection; // меняет направление удара по оси Ox
+        //     }
+        //     else if (topCheck || bottomCheck || topBerryCheck || bottomBerryCheck || bottomChargeCheck) {
+        //         ballTg = -ballTg;                   // тангенс угла наклона к Ox меняется на противоположный в любом случае после столкновения
+        //     }
+        // }
+        // else {
+        // }
+        if (ballCurrentCheckDelay > ballMaxCheckDelay) {
+            rightCheck  = false
+            topCheck    = false
+            leftCheck   = false
+            bottomCheck = false
+        }
+
+        if (rightCheck || leftCheck) {
+            ballTg = -ballTg;                   // тангенс угла наклона к Ox меняется на противоположный
+            ballOxDirection = -ballOxDirection; // меняет направление удара по оси Ox
+        }
+        else if (topCheck || bottomCheck) {
+            ballTg = -ballTg;                   // тангенс угла наклона к Ox меняется на противоположный в любом случае после столкновения
+        }
+
+        let dx = Math.sqrt((ballCurrentSpeed * ballCurrentSpeed) / (1 + ballTg * ballTg)); // находим перемещение по Ox
+        let dy = Math.sqrt(ballCurrentSpeed * ballCurrentSpeed - dx * dx);                 // находим перемещение по Oy
+
+        if (ballOxDirection > 0 && ballTg >= 0) {      // радиус-вектор находится в I четверти
+            ball.x += dx;
+            ball.y += dy
+        }
+        else if (ballOxDirection < 0 && ballTg < 0) {  // радиус-вектор находится в II четверти
+            ball.x -= dx;
+            ball.y += dy
+        }
+        else if (ballOxDirection < 0 && ballTg >= 0) { // радиус-вектор находится в III четверти
+            ball.x -= dx;
+            ball.y -= dy
+        }
+        else if (ballOxDirection > 0 && ballTg < 0) {  // радиус-вектор находится в IV четверти
+            ball.x += dx;
+            ball.y -= dy
+        }
+
+        ballImage.rotation += ballCurrentSpeed; // крутим мячик
+        ballCurrentSpeed *= ballSpeedRatio;     // уменьшаем скорость мяча
+
+        if (ballCurrentCheckDelay > ballMaxCheckDelay && (ball.x + ball.width < 0 || ball.x > container.width || ball.y > container.height || ball.y + ball.height < 0)) {
+            ballMoveTimer.running = false;
+            ballCurrentCheckDelay = 0;
+            ballCurrentSpeed = 15;
+            ball.x = berryEnvironment.x + berry.x
+            ball.y = berryEnvironment.y + berry.y + berry.height - ball.height
+            ballImage.visible = false;
+            withBall = false;
+        }
     }
 
     function randomAction() {
@@ -247,7 +427,7 @@ ApplicationWindow {
     function deltaMove(Y, y, X, x) {
         let dx = Math.abs(X - x);
         let dy = Math.abs(Y - y);
-        if (dx < 2 && dy < 2){
+        if (dx < 5 && dy < 5){
             return {x: 0, y: 0};
         }
 
@@ -257,8 +437,7 @@ ApplicationWindow {
 
         return {x: xMove, y: yMove}
     }
-    function horizontalMove() {
-
+    function berryMove() {
         let berryX = berryEnvironment.x + berry.x + berry.width/2;
         let berryY = berryEnvironment.y + berry.y + berry.height/2;
         let coordinates = deltaMove(posX, berryX, posY, berryY);
@@ -266,8 +445,7 @@ ApplicationWindow {
         let y = coordinates.y;
         if (x === 0 && y === 0){
             standTimer.running = true;
-            // console.log("stop");
-            standHappyBerryFirstFrame();
+            standBerryFirstFrame();
             return
         }
         else if (posX > berryX && posY > berryY) {
@@ -289,27 +467,25 @@ ApplicationWindow {
 
 
         let tg = y/x;
-        // console.log(posY - berryY);
         if (tg > -1 && tg <= 1 && posX - berryX > 0){
-            // console.log("right");
-            rightHappyMove();
+            rightMove();
         }
         else if ((tg > 1 || tg < -1) && posY - berryY < 0) {
-            // console.log("top");
-            topHappyMove();
+            topMove();
         }
         else if (tg > -1 && tg <= 1 && posX - berryX < 0) {
-            // console.log("left");
-            leftHappyMove();
+            leftMove();
         }
         else if ((tg > 1 || tg < -1) && posY - berryY > 0) {
-            // console.log("bottom");
-            bottomHappyMove();
+            bottomMove();
         }
 
     }
 
     function say(text) {
+        isSay = true
+
+        console.log(text);
         targetText = text;
         dialog.visible = true;
         targetTextLength = targetText.length;
@@ -327,26 +503,72 @@ ApplicationWindow {
         }
         onActivated: {
             mainWindow.flags = Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
-            if (reason === 1){
+            if (reason === 1) {
+                // menuVisible = true
                 trayMenu.popup()
             }
         }
     }
-
     Menu {
+        id: trayMenu
         height: 58
         width: 70
-        id: trayMenu
+        font: balsamiq.name
+
+
+        // Timer {
+        //     id: activeMenuItemTimer
+        //     interval: 10
+        //     repeat: true
+        //     running: true
+        //     onTriggered: {
+        //         console.log(menuVisible, activeMenuItem.x + trayMenu.x, menuPosX, activeMenuItem.x + trayMenu.x + activeMenuItem.width);
+        //         if (menuVisible === true) {
+        //             if (menuPosX > activeMenuItem.x + trayMenu.x && menuPosX < activeMenuItem.x + trayMenu.x + trayMenu.width && menuPosY > activeMenuItem.y + trayMenu.y && menuPosY < activeMenuItem.y + trayMenu.y + trayMenu.height) {
+        //                 console.log("внутри актива");
+        //             }
+        //         }
+
+        //     }
+        // }
+
         MenuItem {
-            text: qsTr("Move")
+            // MouseArea {
+            //     onPositionChanged: {
+            //         console.log(mouse.x)
+            //         console.log(mouse.y)
+            //         menuPosX = mouse.x + chargePosX;
+            //         menuPosY = mouse.y + chargePosY;
+            //     }
+            // }
+            id: activeMenuItem
+            // background: Rectangle {
+            //     id: activeMenuItemBackground
+            //     color: "#EEE3FA"
+            //     width: parent.width
+            //     height: parent.height
+            // }
+            contentItem: Text {
+                id: activeMenuItemText
+                text: qsTr("Active")
+                // color: "#4F0063"
+            }
             onTriggered: {
-                moveTimer.running = true;
-                activationChargeTimer.running = true;
+                // menuVisible = false
+                if (!isSay && stopChargingTimer.running === false) {
+                    moveTimer.running = true;
+                    activationChargeTimer.running = true;
+                }
             }
         }
         MenuItem {
+            id: exitMenuItem
             text:qsTr("Exit")
+            // background: Rectangle {
+            //     color: "#EEE3FA"
+            // }
             onTriggered: {
+                // menuVisible = false
                 systemTray.hide()
                 Qt.quit()
             }
@@ -359,7 +581,7 @@ ApplicationWindow {
     }
     SoundEffect {
         id: specialSymbolSound
-        source: "audio/specialSingleBerryTalk.wav"
+        // source: "audio/berryTalk.mp3"
     }
 
     Rectangle {
@@ -369,23 +591,39 @@ ApplicationWindow {
         // border.color: "red"
         // border.width: 2
         MouseArea {
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
             anchors.fill: parent
             hoverEnabled: true
 
             onClicked: {
-                if (chargingBerry.visible === true){
-                    mainWindow.flags = Qt.FramelessWindowHint | Qt.WindowTransparentForInput | Qt.WindowStaysOnTopHint
-                }
-                else if (posX > berryEnvironment.x + berry.x && posX < berryEnvironment.x + berry.x + berry.width && posY > berryEnvironment.y + berry.y && posY < berryEnvironment.y + berry.y + berry.height) {
-                    randomAction();
+                // menuVisible = false
+                // console.log("CLICK:");
+                // console.log(!isSay && stopChargingTimer.running === false && activeChargeCounter === 0 && action_1_stopTimer.running === false && action_2_stopTimer.running === false && action_3_stopTimer.running === false)
+                if (!isSay && stopChargingTimer.running === false && activeChargeCounter === 0 &&
+                        action_1_stopTimer.running === false && action_2_stopTimer.running === false && action_3_stopTimer.running === false &&
+                        withBall === false) {
+                    if (posX > berryEnvironment.x + berry.x && posX < berryEnvironment.x + berry.x + berry.width && posY > berryEnvironment.y + berry.y && posY < berryEnvironment.y + berry.y + berry.height) {
+                        if (mouse.button === Qt.RightButton) {
+                            console.log("пкм")
+                            kickBall();
+                        } else {
+                            console.log("лкм по бэрри")
+                            randomAction();
+                        }
+                    }
+                    else {
+                        console.log("лкм мимо")
+                        moveTimer.running = false; // Включение режима ходьбы
+                        activationChargeTimer.running = false; // Выключение зарядки
+                        standBerryFirstFrame(); // Акивация спрайта "стою и ничего не делаю"
+                        mainWindow.flags = Qt.FramelessWindowHint | Qt.WindowTransparentForInput | Qt.WindowStaysOnTopHint // Флаги безоконного приложения над всеми окнами
+                    }
                 }
                 else {
-                    moveTimer.running = false; // Включение режима ходьюы
-                    activationChargeTimer.running = false; // Выключение зарядки
-                    standHappyBerryFirstFrame(); // Акивация спрайта "стою и ничего не делаю"
-                    mainWindow.flags = Qt.FramelessWindowHint | Qt.WindowTransparentForInput | Qt.WindowStaysOnTopHint // Флаги безоконного приложения над всеми окнами
+                    console.log("лкм, он занят")
+                    mainWindow.flags = Qt.FramelessWindowHint | Qt.WindowTransparentForInput | Qt.WindowStaysOnTopHint
+                    // console.log("Бэрри говорит или заряжается");
                 }
-
             }
 
             onPositionChanged: {
@@ -416,6 +654,7 @@ ApplicationWindow {
             }
         }
 
+
         Rectangle {
             id: berryEnvironment
             width: 405
@@ -426,10 +665,9 @@ ApplicationWindow {
             x: container.width/2 - berry.width/2
             y: container.height/2 - berryEnvironment.height + berry.height/2
 
-
             Image {
                 id: dialog
-                visible: true
+                visible: false
                 width: 250
                 source: "images/environment/dialog.png"
                 anchors.right: parent.right
@@ -471,23 +709,25 @@ ApplicationWindow {
                 width: 200
                 height: 200
                 color: "transparent"
+                border.color: "green"
+                border.width: 3
                 anchors.left: parent.left
                 anchors.bottom: parent.bottom
 
                 AnimatedSprite {
-                    id: standHappy
+                    id: stand
                     antialiasing: false
                     interpolate: false
                     width: 200
                     height: 200
                     source: "images/Berry/happy/stand_5.png"
-                    frameWidth: 200
-                    frameHeight: 200
+                    frameWidth: 650
+                    frameHeight: 650
                     frameCount: 5
                     frameDuration: 200
                 }
                 AnimatedSprite {
-                    id: standHappyFirstFrame
+                    id: standFirstFrame
                     antialiasing: false
                     interpolate: false
                     visible: false
@@ -495,75 +735,102 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/happy/stand_5.png"
                     frameCount: 1
-                    frameWidth: 200
-                    frameHeight: 200
+                    frameWidth: 650
+                    frameHeight: 650
                     frameDuration: 1000
                 }
 
                 AnimatedSprite {
-                    id: moveHappyRight
-                    antialiasing: false
+                    id: moveRight
+                    antialiasing: true
                     interpolate: false
                     visible: false
                     width: 200
                     height: 200
                     source: "images/Berry/happy/moveRight_8.png"
                     frameCount: 8
-                    frameWidth: 200
-                    frameHeight: 200
+                    frameWidth: 650
+                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
-                    id: moveHappyLeft
-                    antialiasing: false
+                    id: moveLeft
+                    antialiasing: true
                     interpolate: false
                     visible: false
                     width: 200
                     height: 200
                     source: "images/Berry/happy/moveLeft_8.png"
                     frameCount: 8
-                    frameWidth: 200
-                    frameHeight: 200
+                    frameWidth: 650
+                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
-                    id: moveHappyBottom
-                    antialiasing: false
+                    id: moveBottom
+                    antialiasing: true
                     interpolate: false
                     visible: false
                     width: 200
                     height: 200
                     source: "images/Berry/happy/moveBottom_6.png"
                     frameCount: 6
-                    frameWidth: 200
-                    frameHeight: 200
+                    frameWidth: 650
+                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
-                    id: moveHappyTop
-                    antialiasing: false
+                    id: moveTop
+                    antialiasing: true
                     interpolate: false
                     visible: false
                     width: 200
                     height: 200
                     source: "images/Berry/happy/moveTop_6.png"
                     frameCount: 6
-                    frameWidth: 200
-                    frameHeight: 200
+                    frameWidth: 650
+                    frameHeight: 650
                     frameDuration: 125
                 }
 
                 AnimatedSprite {
                     id: chargingBerry
-                    antialiasing: false
+                    antialiasing: true
                     interpolate: false
                     visible: false
                     width: 200
                     height: 200
                     source: "images/Berry/charging.png"
                     frameCount: 39
-                    frameWidth: 200
-                    frameHeight: 200
+                    frameWidth: 650
+                    frameHeight: 650
+                    frameDuration: 125
+                }
+
+                AnimatedSprite {
+                    id: kickingBallStartBerry
+                    antialiasing: true
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "images/Berry/kickBallStart.png"
+                    frameCount: 33
+                    frameWidth: 650
+                    frameHeight: 650
+                    frameDuration: 125
+                }
+                AnimatedSprite {
+                    id: kickingBallEndBerry
+                    antialiasing: true
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "images/Berry/kickBallEnd.png"
+                    frameCount: 18
+                    frameWidth: 650
+                    frameHeight: 650
                     frameDuration: 125
                 }
 
@@ -576,8 +843,8 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/action_1.png"
                     frameCount: 11
-                    frameWidth: 200
-                    frameHeight: 200
+                    frameWidth: 650
+                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
@@ -589,8 +856,8 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/action_2.png"
                     frameCount: 14
-                    frameWidth: 200
-                    frameHeight: 200
+                    frameWidth: 650
+                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
@@ -602,23 +869,42 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/action_3.png"
                     frameCount: 19
-                    frameWidth: 200
-                    frameHeight: 200
+                    frameWidth: 650
+                    frameHeight: 650
                     frameDuration: 125
                 }
-
             }
 
         }
 
         Image {
             id: chargingModule
+            width: 48
+            height: 68
             antialiasing: true;
             source: "images/environment/chargingModule.png"
             anchors.left: parent.left
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 1
-            anchors.leftMargin: 1
+            anchors.leftMargin: 2
+        }
+
+        Rectangle {
+            id: ball
+            width: 77
+            height: 77
+            color: "transparent"
+            border.color: "red"
+            border.width: 2
+            x: berryEnvironment.x + berry.x
+            y: berryEnvironment.y + berry.y + berry.height - ball.height
+            Image {
+                id: ballImage
+                antialiasing: true
+                source: "images/environment/ball.png"
+                visible: false
+                width: parent.width
+                height: parent.height
+            }
         }
     }
 }
