@@ -29,11 +29,11 @@ qt_add_qml_module(appBerry
     QML_FILES
         Main.qml
         RESOURCES images/appIcons/favicon.ico images/appIcons/favicon.rc images/appIcons/trayIcon.png
-
-        RESOURCES images/environment/ball.png images/Berry/kickBallEnd.png images/Berry/kickBallStart.png images/Berry/charging.png images/environment/chargingModule.png images/environment/dialog.png images/Berry/hi.png
-        RESOURCES images/Berry/happy/moveBottom_6.png images/Berry/happy/moveLeft_8.png images/Berry/happy/moveRight_8.png images/Berry/happy/stand_5.png images/Berry/happy/moveTop_6.png
-        RESOURCES images/Berry/sad/moveBottom_6.png   images/Berry/sad/moveLeft_8.png   images/Berry/sad/moveRight_8.png   images/Berry/sad/stand_5.png
-        RESOURCES images/Berry/crazy/moveBottom_6.png images/Berry/crazy/moveLeft_8.png images/Berry/crazy/moveRight_8.png images/Berry/crazy/stand_5.png
+        RESOURCES images/Berry/action_1.svg images/Berry/action_2.svg images/Berry/action_3.svg
+        RESOURCES images/environment/ball.svg images/Berry/kickBallEnd.svg images/Berry/kickBallStart.svg images/Berry/charging.svg images/environment/chargingModule.svg images/environment/dialog.svg images/Berry/hi.svg
+        RESOURCES images/Berry/happy/moveBottom_6.svg images/Berry/happy/moveLeft_8.svg images/Berry/happy/moveRight_8.svg images/Berry/happy/stand_5.svg images/Berry/happy/moveTop_6.svg
+        RESOURCES images/Berry/sad/moveBottom_6.svg   images/Berry/sad/moveLeft_8.svg   images/Berry/sad/moveRight_8.svg   images/Berry/sad/stand_5.svg
+        RESOURCES images/Berry/crazy/moveBottom_6.svg images/Berry/crazy/moveLeft_8.svg images/Berry/crazy/moveRight_8.svg images/Berry/crazy/stand_5.svg
 
 
         RESOURCES audio/singleBerryTalk.wav audio/berryTalk.mp3 audio/ballKick.wav

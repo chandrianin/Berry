@@ -27,7 +27,7 @@ ApplicationWindow {
     property int          rawPosX:                  0       // координата X курсора без обработки
     property int          rawPosY:                  0       // координата Y курсора без обработки
 
-    property real         moveValue:                3       // скорость перемещения berry за итерацию
+    property real         moveValue:                3.5     // скорость перемещения berry за итерацию
 
     property int          standCounter:             0       // счётчик
     property int          standIterations:          1       // количество секунд, которое standBerry находится в статичном состоянии каждую итерацию
@@ -87,7 +87,7 @@ ApplicationWindow {
             moveTimer.running = true;
 
             console.log("charging disabled");
-            //TODO добавить анимцию ухода chargingModule
+            //TODO добавить анимацию ухода chargingModule
             activationChargeTimer.running = false;
             waitChargingTimer.running = true;
         }
@@ -101,13 +101,13 @@ ApplicationWindow {
             if (posX > berryEnvironment.x + berry.x && posX < berryEnvironment.x + berry.x + berry.width && posY > berryEnvironment.y + berry.y && posY < berryEnvironment.y + berry.y + berry.height) {
                 if (rawPosX > chargingModule.x && rawPosX < chargingModule.x + chargingModule.width && rawPosY > chargingModule.y && rawPosY < chargingModule.y + chargingModule.height){
                     waitChargingTimer.interval += disabledChargindInterval;
-                    console.log("chargind block");
+                    console.log("charging block");
                 }
             }
             else {
                 console.log("charging enabled");
                 activationChargeTimer.running = true;
-                //TODO добавить анимцию появления chargingModule
+                //TODO добавить анимацию появления chargingModule
                 chargingModule.visible = true;
             }
         }
@@ -262,7 +262,7 @@ ApplicationWindow {
         running: false
         interval: 2000
         onTriggered: {
-            //TODO animation
+            //TODO animation ухода текста
             textToDialog.text = "";
             dialog.visible = false;
 
@@ -533,7 +533,9 @@ ApplicationWindow {
             ballCurrentSpeed = 15;
             ball.x = berryEnvironment.x + berry.x
             ball.y = berryEnvironment.y + berry.y + berry.height - ball.height
+            ball.rotation = 0;
             ballImage.visible = false;
+
             withBall = false;
         }
     }
@@ -628,29 +630,29 @@ ApplicationWindow {
 
 
     function setHappyBerry(){
-        stand.source = "images/Berry/happy/stand_5.png";
-        standFirstFrame.source = "images/Berry/happy/stand_5.png";
-        moveRight.source = "images/Berry/happy/moveRight_8.png";
-        moveLeft.source = "images/Berry/happy/moveLeft_8.png";
-        moveBottom.source = "images/Berry/happy/moveBottom_6.png";
+        stand.source = "images/Berry/happy/stand_5.svg";
+        standFirstFrame.source = "images/Berry/happy/stand_5.svg";
+        moveRight.source = "images/Berry/happy/moveRight_8.svg";
+        moveLeft.source = "images/Berry/happy/moveLeft_8.svg";
+        moveBottom.source = "images/Berry/happy/moveBottom_6.svg";
         berryStatus = "happy";
         console.log(berryStatus);
     }
     function setSadBerry(){
-        stand.source = "images/Berry/sad/stand_5.png";
-        standFirstFrame.source = "images/Berry/sad/stand_5.png";
-        moveRight.source = "images/Berry/sad/moveRight_8.png";
-        moveLeft.source = "images/Berry/sad/moveLeft_8.png";
-        moveBottom.source = "images/Berry/sad/moveBottom_6.png";
+        stand.source = "images/Berry/sad/stand_5.svg";
+        standFirstFrame.source = "images/Berry/sad/stand_5.svg";
+        moveRight.source = "images/Berry/sad/moveRight_8.svg";
+        moveLeft.source = "images/Berry/sad/moveLeft_8.svg";
+        moveBottom.source = "images/Berry/sad/moveBottom_6.svg";
         berryStatus = "sad";
         console.log(berryStatus);
     }
     function setCrazyBerry(){
-        stand.source = "images/Berry/crazy/stand_5.png";
-        standFirstFrame.source = "images/Berry/crazy/stand_5.png";
-        moveRight.source = "images/Berry/crazy/moveRight_8.png";
-        moveLeft.source = "images/Berry/crazy/moveLeft_8.png";
-        moveBottom.source = "images/Berry/crazy/moveBottom_6.png";
+        stand.source = "images/Berry/crazy/stand_5.svg";
+        standFirstFrame.source = "images/Berry/crazy/stand_5.svg";
+        moveRight.source = "images/Berry/crazy/moveRight_8.svg";
+        moveLeft.source = "images/Berry/crazy/moveLeft_8.svg";
+        moveBottom.source = "images/Berry/crazy/moveBottom_6.svg";
         berryStatus = "crazy";
         console.log(berryStatus);
     }
@@ -936,7 +938,7 @@ ApplicationWindow {
                 visible: false
                 width: 250
                 height: 146
-                source: "images/environment/dialog.png"
+                source: "images/environment/dialog.svg"
                 anchors.right: parent.right
                 anchors.top: parent.top
             }
@@ -987,7 +989,7 @@ ApplicationWindow {
                     interpolate: false
                     width: 200
                     height: 200
-                    source: "images/Berry/happy/stand_5.png"
+                    source: "images/Berry/happy/stand_5.svg"
                     frameWidth: 650
                     frameHeight: 650
                     frameCount: 5
@@ -1000,7 +1002,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/happy/stand_5.png"
+                    source: "images/Berry/happy/stand_5.svg"
                     frameCount: 1
                     frameWidth: 650
                     frameHeight: 650
@@ -1014,7 +1016,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/happy/moveRight_8.png"
+                    source: "images/Berry/happy/moveRight_8.svg"
                     frameCount: 8
                     frameWidth: 650
                     frameHeight: 650
@@ -1027,7 +1029,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/happy/moveLeft_8.png"
+                    source: "images/Berry/happy/moveLeft_8.svg"
                     frameCount: 8
                     frameWidth: 650
                     frameHeight: 650
@@ -1040,7 +1042,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/happy/moveBottom_6.png"
+                    source: "images/Berry/happy/moveBottom_6.svg"
                     frameCount: 6
                     frameWidth: 650
                     frameHeight: 650
@@ -1053,7 +1055,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/happy/moveTop_6.png"
+                    source: "images/Berry/happy/moveTop_6.svg"
                     frameCount: 6
                     frameWidth: 650
                     frameHeight: 650
@@ -1067,7 +1069,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/charging.png"
+                    source: "images/Berry/charging.svg"
                     frameCount: 39
                     frameWidth: 650
                     frameHeight: 650
@@ -1081,7 +1083,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/kickBallStart.png"
+                    source: "images/Berry/kickBallStart.svg"
                     frameCount: 33
                     frameWidth: 650
                     frameHeight: 650
@@ -1094,7 +1096,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/kickBallEnd.png"
+                    source: "images/Berry/kickBallEnd.svg"
                     frameCount: 18
                     frameWidth: 650
                     frameHeight: 650
@@ -1108,7 +1110,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/action_1.png"
+                    source: "images/Berry/action_1.svg"
                     frameCount: 11
                     frameWidth: 650
                     frameHeight: 650
@@ -1121,7 +1123,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/action_2.png"
+                    source: "images/Berry/action_2.svg"
                     frameCount: 14
                     frameWidth: 650
                     frameHeight: 650
@@ -1134,7 +1136,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/action_3.png"
+                    source: "images/Berry/action_3.svg"
                     frameCount: 19
                     frameWidth: 650
                     frameHeight: 650
@@ -1148,7 +1150,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/hi.png"
+                    source: "images/Berry/hi.svg"
                     frameCount: 19
                     frameWidth: 650
                     frameHeight: 650
@@ -1162,7 +1164,7 @@ ApplicationWindow {
                     visible: false
                     width: 200
                     height: 200
-                    source: "images/Berry/thinking.png"
+                    source: "images/Berry/thinking.svg"
                     frameCount: 24
                     frameWidth: 650
                     frameHeight: 650
@@ -1178,10 +1180,11 @@ ApplicationWindow {
             width: 48
             height: 68
             antialiasing: true;
-            source: "images/environment/chargingModule.png"
+            source: "images/environment/chargingModule.svg"
             anchors.left: parent.left
             anchors.bottom: parent.bottom
-            anchors.leftMargin: 2
+            anchors.leftMargin: 2.7
+            anchors.bottomMargin: 0
         }
 
         Rectangle {
@@ -1196,7 +1199,7 @@ ApplicationWindow {
             Image {
                 id: ballImage
                 antialiasing: true
-                source: "images/environment/ball.png"
+                source: "images/environment/ball.svg"
                 visible: false
                 width: parent.width
                 height: parent.height
