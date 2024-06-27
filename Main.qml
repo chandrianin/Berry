@@ -12,6 +12,7 @@ ApplicationWindow {
     color: "transparent"
 
     property string       berryStatus:              "happy"
+    property string       berryTextToToDoList:      "Задача №1\nЗадача№2"
     property list<Timer>  actions:                  []
     property int          lastActionIndex:          0
     property list<string> textList:                 []
@@ -95,17 +96,18 @@ ApplicationWindow {
     Timer {
         id: waitChargingTimer
         running: false
-        repeat: false
+        repeat: true
         interval: disabledChargindInterval * 1000
         onTriggered: {
             if (posX > berryEnvironment.x + berry.x && posX < berryEnvironment.x + berry.x + berry.width && posY > berryEnvironment.y + berry.y && posY < berryEnvironment.y + berry.y + berry.height) {
                 if (rawPosX > chargingModule.x && rawPosX < chargingModule.x + chargingModule.width && rawPosY > chargingModule.y && rawPosY < chargingModule.y + chargingModule.height){
-                    waitChargingTimer.interval += disabledChargindInterval;
+                    // waitChargingTimer.interval += disabledChargindInterval;
                     console.log("charging block");
                 }
             }
             else {
                 console.log("charging enabled");
+                waitChargingTimer.running = false;
                 activationChargeTimer.running = true;
                 //TODO добавить анимацию появления chargingModule
                 chargingModule.visible = true;
@@ -276,23 +278,11 @@ ApplicationWindow {
         id: _hiBerryTimer
         repeat: false
         running: false
-        interval: 0/*hiBerry.frameCount * hiBerry.frameDuration*/
-        // triggeredOnStart: true
+        interval: 0
         onTriggered: {
             console.log("сработал таймер hiBerry");
-            // console.log("hiBerry visible");
-            stopSprits();
+            stopSprites();
             hiBerry.visible = true;
-            // if (firstTrigger) {
-
-            //     firstTrigger = false;
-            // } else {
-            //     firstTrigger = true
-
-            //     // standCounter = 0;
-            //     // standBerryFirstFrame();
-            // }
-
         }
     }
     Timer {
@@ -321,7 +311,7 @@ ApplicationWindow {
         id: _defaultStatusTimer
         repeat: false
         running: false
-        interval: 0/*stand.frameCount * stand.frameDuration*/
+        interval: 0
         onTriggered: {
             standBerry();
             console.log("сработал таймер ОР");
@@ -352,9 +342,27 @@ ApplicationWindow {
         id: _toDoListTimer
         repeat: false
         running: false
-        interval: 15
+        interval: 0
+        triggeredOnStart: true
         onTriggered: {
-            console.log("сработал таймер toDo");
+            if (firstTrigger) {
+                stopSprites();
+                toDoListWow.visible = true;
+                toDoList.visible = true;
+                textToToDoList.visible = true;
+
+                firstTrigger = false
+            }
+            else {
+                firstTrigger = true
+
+                toDoListWow.visible = false;
+                textToToDoList.visible = false;
+                toDoList.visible = false;
+
+                console.log("сработал таймер toDo");
+            }
+
         }
     }
     Timer {
@@ -363,9 +371,185 @@ ApplicationWindow {
         running: false
         interval: 0
         onTriggered: {
-            stopSprits();
+            stopSprites();
             thinkingBerry.visible = true;
             console.log("сработал таймер thinkBerry");
+        }
+    }
+    Timer {
+        id: _smileBerryTimer
+        repeat: false
+        running: false
+        interval: 0
+        onTriggered: {
+            stopSprites();
+            smilingBerry.visible = true;
+            console.log("сработал Улыбака");
+        }
+    }
+    Timer {
+        id: _eyesDownTimer
+        repeat: false
+        running: false
+        interval: eyesDown.frameCount * eyesDown.frameDuration - 800
+        triggeredOnStart: true
+        onTriggered: {
+            if (firstTrigger) {
+                stopSprites();
+                eyesDown.visible = true;
+                console.log("сработал глазок вниз");
+
+                firstTrigger = false
+            }
+            else {
+                firstTrigger = true;
+
+                eyesDown.visible = false;
+                // standFirstFrame.visible = true;
+                eyesBottom.visible = true;
+                console.log("сработало выключение глазка вниз");
+            }
+        }
+    }
+    Timer {
+        id: _eyesBottomTimer
+        repeat: false
+        running: false
+        interval: eyesBottom.frameCount * eyesBottom.frameDuration
+        triggeredOnStart: true
+        onTriggered: {
+            if (firstTrigger) {
+                stopSprites();
+                eyesBottom.visible = true;
+                console.log("сработал глазок внизу");
+
+                firstTrigger = false
+            }
+            else {
+                firstTrigger = true;
+
+                // eyesBottom.visible = false;
+                // standFirstFrame.visible = true;
+                console.log("сработало выключение глазка внизу");
+            }
+        }
+    }
+    Timer {
+        id: _eyesUpTimer
+        repeat: false
+        running: false
+        interval: eyesUp.frameCount * eyesUp.frameDuration
+        triggeredOnStart: true
+        onTriggered: {
+            if (firstTrigger) {
+                stopSprites();
+                eyesUp.visible = true;
+                console.log("сработал глазок вверх");
+
+                firstTrigger = false
+            }
+            else {
+                firstTrigger = true;
+
+                eyesUp.visible = false;
+                standFirstFrame.visible = true;
+                console.log("сработало выключение глазка вверх");
+            }
+        }
+    }
+
+    Timer {
+        id: _eyesSomewhereTimer
+        repeat: false
+        running: false
+        interval: eyesSomewhere.frameCount * eyesSomewhere.frameDuration - 800
+        triggeredOnStart: true
+        onTriggered: {
+            if (firstTrigger) {
+                stopSprites();
+                eyesDown.visible = true;
+                console.log("сработал глазок в куда-то");
+
+                firstTrigger = false
+            }
+            else {
+                firstTrigger = true;
+
+                eyesInSomewhere.visible = true;
+                console.log("сработало выключение глазка в куда-то");
+            }
+        }
+    }
+    Timer {
+        id: _eyesInSomewhereTimer
+        repeat: false
+        running: false
+        interval: eyesInSomewhere.frameCount * eyesInSomewhere.frameDuration
+        triggeredOnStart: true
+        onTriggered: {
+            if (firstTrigger) {
+                stopSprites();
+                eyesInSomewhere.visible = true;
+                console.log("сработал глазок в гду-то");
+
+                firstTrigger = false
+            }
+            else {
+                firstTrigger = true;
+
+                eyesInSomewhere.visible = false;
+                // standFirstFrame.visible = true;
+                console.log("сработало выключение глазка в где-то");
+            }
+        }
+    }
+    Timer {
+        id: _eyesOnPlayerTimer
+        repeat: false
+        running: false
+        interval: eyesOnPlayer.frameCount * eyesOnPlayer.frameDuration
+        triggeredOnStart: true
+        onTriggered: {
+            if (firstTrigger) {
+                stopSprites();
+                eyesOnPlayer.visible = true;
+                console.log("сработал глазок на человека");
+
+                firstTrigger = false
+            }
+            else {
+                firstTrigger = true;
+
+                eyesOnPlayer.visible = false;
+                standFirstFrame.visible = true;
+                console.log("сработало выключение глазка на человека");
+            }
+        }
+    }
+
+    Timer {
+        id: _holdHeadTimer
+        repeat: false;
+        running: false
+        interval: holdHead.frameCount * holdHead.frameDuration - 1000
+        triggeredOnStart: true
+        onTriggered: {
+            // holdHead.visible = !holdHead.visible;
+            if (firstTrigger) {
+                stopSprites();
+                holdHead.visible = true;
+                console.log("сработал голова, моя голова");
+
+                firstTrigger = false
+
+            }
+            else {
+                firstTrigger = true;
+
+                holdHead.visible = false;
+                standFirstFrame.visible = true;
+                console.log("сработало выключение головы");
+            }
         }
     }
 
@@ -373,13 +557,17 @@ ApplicationWindow {
         id: mainInDayTimer
         repeat: true
         running: false
-        interval: 16
+        interval: 3
         onTriggered: {
             if (lastActionIndex < actions.length) {
+                console.log("что-то0")
                 if (actions[lastActionIndex].running === false) {
+                    console.log("что-то1")
                     lastActionIndex += 1
                     if (lastActionIndex < actions.length) {
-                        actions[lastActionIndex].running = true;
+                        console.log("что-то")
+                        actions[lastActionIndex].start();
+                        console.log(actions[lastActionIndex].id)
                     }
                 }
             }
@@ -391,7 +579,7 @@ ApplicationWindow {
         }
     }
 
-    function stopSprits(){
+    function stopSprites(){
         standTimer.running=false
         for (let i = 0; i < berry.children.length; i++) {
             berry.children[i].visible = false;
@@ -399,42 +587,42 @@ ApplicationWindow {
     }
 
     function standBerry(){
-        stopSprits();
+        stopSprites();
         stand.visible = true;
         standCounter = 0;
         standTimer.running = true
     }
     function standBerryFirstFrame(){
         standCounter++;
-        stopSprits();
+        stopSprites();
         standFirstFrame.visible = true;
         standTimer.running = true
     }
 
     function rightMove() {
-        stopSprits();
+        stopSprites();
         moveRight.visible = true;
     }
     function topMove() {
-        stopSprits();
+        stopSprites();
         moveTop.visible = true;
     }
     function leftMove() {
-        stopSprits();
+        stopSprites();
         moveLeft.visible = true;
     }
     function bottomMove() {
-        stopSprits();
+        stopSprites();
         moveBottom.visible = true;
     }
 
     function charge(){
-        stopSprits();
+        stopSprites();
         chargingBerry.visible = true;
     }
     function kickBall(){
         moveTimer.running = false;
-        stopSprits();
+        stopSprites();
 
         kickingBallStartBerry.visible = true;
         withBall = true;
@@ -543,7 +731,7 @@ ApplicationWindow {
     function randomAction() {
         let actions = Array(action_1, action_2, action_3);
         moveTimer.running = false
-        stopSprits();
+        stopSprites();
         let randomIndex = Math.ceil(Math.random() * (actions.length)) - 1;
         actions[randomIndex].visible = true;
         if (action_1.visible === true) {
@@ -656,9 +844,14 @@ ApplicationWindow {
         berryStatus = "crazy";
         console.log(berryStatus);
     }
-
-
     function _hiBerry() {
+        hiBerry.source = "images/Berry/hi.svg"
+        hiBerry.frameCount = 19
+        actions.push(_hiBerryTimer)
+    }
+    function _hiSadBerry(){
+        hiBerry.source = "images/Berry/sadHi.svg"
+        hiBerry.frameCount = 17
         actions.push(_hiBerryTimer)
     }
 
@@ -666,11 +859,9 @@ ApplicationWindow {
         textList.push(text);
         actions.push(_newTextTimer);
     }
-
     function _defaultMode() {
         actions.push(_defaultStatusTimer);
     }
-
     function _moveBerry(x, y) {
         targetX.push(x);
         targetY.push(y);
@@ -678,19 +869,63 @@ ApplicationWindow {
         actions.push(_moveBerryTimer);
     }
     function _toDoList() {
+        textToToDoList.text = berryTextToToDoList;
         actions.push(_toDoListTimer);
     }
     function _thinkBerry(){
         actions.push(_thinkingBerryTimer);
     }
+    function _smileBerry(){
+        actions.push(_smileBerryTimer);
+    }
+
+    function _eyesDown() {
+        actions.push(_eyesDownTimer);
+    }
+    function _eyesBottom() {
+        actions.push(_eyesBottomTimer);
+    }
+    function _eyesUp() {
+        actions.push(_eyesUpTimer);
+    }
+    function _eyesSomewhere() {
+        actions.push(_eyesSomewhereTimer);
+    }
+    function _eyesInSomewhere() {
+        actions.push(_eyesSomewhereTimer);
+    }
+    function _eyesOnPlayer() {
+        actions.push(_eyesOnPlayerTimer);
+    }
+    function _holdHead() {
+        actions.push(_holdHeadTimer);
+    }
 
     function startDay() {
-        _defaultMode();
+        // _defaultMode();
         dayProcess = true
         actions[0].running = true;
         mainInDayTimer.running = true;
+        // TODO передать C++, что сюжет рассказан до конца
     }
 
+    function test() {
+        _addText("Глаза внизу");
+        _holdHead();
+        _toDoList();
+        // _hiSadBerry();
+        // _eyesDown();
+        // _eyesUp();
+        // _addText("Подержим глаза внизу");
+        // _eyesDown();
+        // _eyesBottom();
+        // _eyesUp();
+        // _addText("Теперь где-то");
+        // _eyesSomewhere();
+        // _eyesInSomewhere();
+        // _eyesOnPlayer();
+        startDay();
+    }
 
     function day_1() {
         console.log("activate day_1");
@@ -746,8 +981,6 @@ ApplicationWindow {
         // текст
         _addText("Ну ты походу дела разберёшься, так что начнём!");
         startDay();
-
-        // TODO передать C++, что сюжет рассказан до конца
     }
 
 
@@ -768,7 +1001,6 @@ ApplicationWindow {
         onActivated: {
             mainWindow.flags = Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
             if (reason === 1) {
-                // menuVisible = true
                 trayMenu.popup()
             }
         }
@@ -778,24 +1010,6 @@ ApplicationWindow {
         height: 58
         width: 70
         font: balsamiq.name
-
-
-        // Timer {
-        //     id: activeMenuItemTimer
-        //     interval: 10
-        //     repeat: true
-        //     running: true
-        //     onTriggered: {
-        //         console.log(menuVisible, activeMenuItem.x + trayMenu.x, menuPosX, activeMenuItem.x + trayMenu.x + activeMenuItem.width);
-        //         if (menuVisible === true) {
-        //             if (menuPosX > activeMenuItem.x + trayMenu.x && menuPosX < activeMenuItem.x + trayMenu.x + trayMenu.width && menuPosY > activeMenuItem.y + trayMenu.y && menuPosY < activeMenuItem.y + trayMenu.y + trayMenu.height) {
-        //                 console.log("внутри актива");
-        //             }
-        //         }
-
-        //     }
-        // }
-
         MenuItem {
             // MouseArea {
             //     onPositionChanged: {
@@ -819,7 +1033,7 @@ ApplicationWindow {
             }
             onTriggered: {
                 // menuVisible = false
-                if (!isSay && stopChargingTimer.running === false) {
+                if (!isSay && stopChargingTimer.running === false && dayProcess === false) {
                     moveTimer.running = true;
                     activationChargeTimer.running = true;
                 }
@@ -847,7 +1061,6 @@ ApplicationWindow {
         id: specialSymbolSound
         // source: "audio/berryTalk.mp3"
     }
-
     SoundEffect {
         id: ballKickSound
         source: "audio/ballKick.wav"
@@ -933,6 +1146,16 @@ ApplicationWindow {
             x: container.width/2 - berry.width/2
             y: container.height/2 - berryEnvironment.height + berry.height/2
 
+            // Rectangle {
+            //     width: 297
+            //     height: 110
+            //     color: "tarnsperent"
+            //     border.width: 2
+            //     // border.color: "red"
+            //     anchors.right: parent.right
+            //     anchors.top: parent.top
+            // }
+
             Image {
                 id: dialog
                 visible: false
@@ -941,6 +1164,46 @@ ApplicationWindow {
                 source: "images/environment/dialog.svg"
                 anchors.right: parent.right
                 anchors.top: parent.top
+            }
+
+            Image {
+                id: toDoList
+                source: "images/environment/toDoList.png"
+                visible: false
+                antialiasing: true
+                width: 297
+                height: 110
+                anchors.right: parent.right
+                anchors.top: parent.top
+                // anchors.rightMargin: 10
+                // anchors.topMargin: 10
+            }
+            Text {
+                id: textToToDoList
+                text: ""
+                visible: false;
+
+                width: 245
+                height: 50
+
+                font.family: balsamiq.name
+                wrapMode: Text.Wrap
+                font.pixelSize: 15
+                lineHeight: 1.45
+                font.italic: true
+                font.bold: true
+
+                horizontalAlignment: Text.AlignLeft
+                verticalAlignment: Text.AlignTop
+                color: "#693875"
+
+
+                anchors.right: parent.right
+                anchors.topMargin: 47
+                anchors.rightMargin: 15
+                anchors.top: parent.top
+                topPadding: 0
+                leftPadding: 5
             }
 
             FontLoader {
@@ -985,7 +1248,7 @@ ApplicationWindow {
 
                 AnimatedSprite {
                     id: stand
-                    antialiasing: false
+                    antialiasing: true
                     interpolate: false
                     width: 200
                     height: 200
@@ -997,7 +1260,7 @@ ApplicationWindow {
                 }
                 AnimatedSprite {
                     id: standFirstFrame
-                    antialiasing: false
+                    antialiasing: true
                     interpolate: false
                     visible: false
                     width: 200
@@ -1170,11 +1433,126 @@ ApplicationWindow {
                     frameHeight: 650
                     frameDuration: 125
                 }
+                AnimatedSprite {
+                    id: smilingBerry
+                    antialiasing: true
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "images/Berry/smiling.svg"
+                    frameCount: 12
+                    frameWidth: 650
+                    frameHeight: 650
+                    frameDuration: 125
+                }
+                AnimatedSprite {
+                    id: eyesOnPlayer
+                    antialiasing: true
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "images/Berry/eyesOnPlayer.svg"
+                    frameCount: 3
+                    frameWidth: 650
+                    frameHeight: 650
+                    frameDuration: 700
+                }
+                AnimatedSprite {
+                    id: eyesDown
+                    antialiasing: true
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "images/Berry/eyesDown.svg"
+                    frameCount: 3
+                    frameWidth: 650
+                    frameHeight: 650
+                    frameDuration: 700
+                }
+                AnimatedSprite {
+                    id: eyesBottom
+                    antialiasing: true
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "images/Berry/eyesBottom.svg"
+                    frameCount: 4
+                    frameWidth: 650
+                    frameHeight: 650
+                    frameDuration: 700
+                }
+                AnimatedSprite {
+                    id: eyesUp
+                    antialiasing: true
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "images/Berry/eyesUp.svg"
+                    frameCount: 3
+                    frameWidth: 650
+                    frameHeight: 650
+                    frameDuration: 700
+                }
+                AnimatedSprite {
+                    id: eyesSomewhere
+                    antialiasing: true
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "images/Berry/eyesSomewhere.svg"
+                    frameCount: 3
+                    frameWidth: 650
+                    frameHeight: 650
+                    frameDuration: 700
+                }
+                AnimatedSprite {
+                    id: eyesInSomewhere
+                    antialiasing: true
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "images/Berry/eyesInSomewhere.svg"
+                    frameCount: 8
+                    frameWidth: 650
+                    frameHeight: 650
+                    frameDuration: 350
+                }
+                AnimatedSprite {
+                    id: holdHead
+                    antialiasing: true
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "images/Berry/holdHead.svg"
+                    frameCount: 19
+                    frameWidth: 650
+                    frameHeight: 650
+                    frameDuration: 125
+                }
+                AnimatedSprite {
+                    id: toDoListWow
+                    antialiasing: true
+                    interpolate: false
+                    visible: false
+                    width: 200
+                    height: 200
+                    source: "images/Berry/toDoListWow.svg"
+                    frameCount: 27
+                    frameWidth: 650
+                    frameHeight: 650
+                    frameDuration: 125
+                }
 
             }
-
         }
-
         Image {
             id: chargingModule
             width: 48
@@ -1186,7 +1564,6 @@ ApplicationWindow {
             anchors.leftMargin: 2.7
             anchors.bottomMargin: 0
         }
-
         Rectangle {
             id: ball
             width: 77
