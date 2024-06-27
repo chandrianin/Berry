@@ -844,63 +844,78 @@ ApplicationWindow {
         berryStatus = "crazy";
         console.log(berryStatus);
     }
+
+    // Весело машет ручкой
     function _hiBerry() {
         hiBerry.source = "images/Berry/hi.svg"
         hiBerry.frameCount = 19
         actions.push(_hiBerryTimer)
     }
+    // Грустно машет ручкой
     function _hiSadBerry(){
         hiBerry.source = "images/Berry/sadHi.svg"
         hiBerry.frameCount = 17
         actions.push(_hiBerryTimer)
     }
-
+    // Добавить фразу к его монологу
     function _addText(text) {
         textList.push(text);
         actions.push(_newTextTimer);
     }
+    // Обычный режим
     function _defaultMode() {
         actions.push(_defaultStatusTimer);
     }
+    // Движение Бэри к точке (x,y)
     function _moveBerry(x, y) {
         targetX.push(x);
         targetY.push(y);
         // console.log(x, y)
         actions.push(_moveBerryTimer);
     }
+    // Появление списка задач
     function _toDoList() {
         textToToDoList.text = berryTextToToDoList;
         actions.push(_toDoListTimer);
     }
+    // Бэри думает
     function _thinkBerry(){
         actions.push(_thinkingBerryTimer);
     }
+    // Бэри улыбается
     function _smileBerry(){
         actions.push(_smileBerryTimer);
     }
-
+    // Бэри опускает глаза и они остаются опущенными
     function _eyesDown() {
         actions.push(_eyesDownTimer);
     }
+    // У Бэри опущены глаза некоторое время
     function _eyesBottom() {
         actions.push(_eyesBottomTimer);
     }
+    // Бэри поднимает глаза и переходит в ОР
     function _eyesUp() {
         actions.push(_eyesUpTimer);
     }
+    // Бэри уводит глаза в сторону и глаза остаются там
     function _eyesSomewhere() {
         actions.push(_eyesSomewhereTimer);
     }
+    // Глаза Бэри в стороне некоторое время
     function _eyesInSomewhere() {
         actions.push(_eyesSomewhereTimer);
     }
+    // Бэри поднимает глаза на игрока
     function _eyesOnPlayer() {
         actions.push(_eyesOnPlayerTimer);
     }
+    // Бэри хватает за голову
     function _holdHead() {
         actions.push(_holdHeadTimer);
     }
 
+    // Запуск в конце каждого дня
     function startDay() {
         // _defaultMode();
         dayProcess = true
@@ -927,12 +942,7 @@ ApplicationWindow {
         startDay();
     }
 
-    function day_1() {
-        console.log("activate day_1");
-        // for (let i = 0; i < actions.length; i++) {
-        //     console.log(actions[i].running);
-        // }
-
+    function day_1() {    
         // Машет рукой
         _hiBerry();
 
@@ -967,7 +977,7 @@ ApplicationWindow {
         _addText("Каждый день тебе будет предоставлен список твоих дел, и вот сегодняшний:")
 
         // Список дел
-        _toDoList();
+        _toDoList("");
 
         // думает
         _thinkBerry();
@@ -980,6 +990,7 @@ ApplicationWindow {
 
         // текст
         _addText("Ну ты походу дела разберёшься, так что начнём!");
+
         startDay();
     }
 
