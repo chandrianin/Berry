@@ -342,7 +342,7 @@ ApplicationWindow {
         id: _toDoListTimer
         repeat: false
         running: false
-        interval: 0
+        interval: toDoListWow.frameCount * toDoListWow.frameDuration * 2
         triggeredOnStart: true
         onTriggered: {
             if (firstTrigger) {
@@ -359,6 +359,7 @@ ApplicationWindow {
                 toDoListWow.visible = false;
                 textToToDoList.visible = false;
                 toDoList.visible = false;
+                standBerry();
 
                 console.log("сработал таймер toDo");
             }
@@ -560,14 +561,10 @@ ApplicationWindow {
         interval: 3
         onTriggered: {
             if (lastActionIndex < actions.length) {
-                console.log("что-то0")
                 if (actions[lastActionIndex].running === false) {
-                    console.log("что-то1")
                     lastActionIndex += 1
                     if (lastActionIndex < actions.length) {
-                        console.log("что-то")
                         actions[lastActionIndex].start();
-                        console.log(actions[lastActionIndex].id)
                     }
                 }
             }
@@ -875,7 +872,6 @@ ApplicationWindow {
     }
     // Появление списка задач
     function _toDoList() {
-        textToToDoList.text = berryTextToToDoList;
         actions.push(_toDoListTimer);
     }
     // Бэри думает
@@ -942,7 +938,8 @@ ApplicationWindow {
         startDay();
     }
 
-    function day_1() {    
+    function day_1(toDoListText) {
+        textToToDoList.text = toDoListText;
         // Машет рукой
         _hiBerry();
 
@@ -994,7 +991,8 @@ ApplicationWindow {
         startDay();
     }
 
-    function day_2(){
+    function day_2(toDoListText) {
+        textToToDoList.text = toDoListText;
         _hiBerry();
         _addText("Привет! Давно не виделись! (∗  ̶ ˃ ᵕ ˂ ̶ ∗ )");
         _smileBerry();
@@ -1007,7 +1005,8 @@ ApplicationWindow {
         startDay();
     }
 
-    function day_3(){
+    function day_3(toDoListText) {
+        textToToDoList.text = toDoListText;
         _hiSadBerry();
         _addText("Привет! ");
         _defaultMode();
@@ -1029,7 +1028,9 @@ ApplicationWindow {
         startDay();
     }
 
-    function day_4(){
+    function day_4(toDoListText) {
+        textToToDoList.text = toDoListText;
+
         setSadBerry();
         _eyesDown();
         _eyesBottom();
