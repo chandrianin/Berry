@@ -12,7 +12,6 @@ ApplicationWindow {
     color: "transparent"
 
     property string       berryStatus:              "happy"
-    property string       berryTextToToDoList:      "Задача №1\nЗадача№2"
     property list<Timer>  actions:                  []
     property int          lastActionIndex:          0
     property list<string> textList:                 []
@@ -49,9 +48,31 @@ ApplicationWindow {
     property real         ballOxDirection:          0       // статус направления ball относительно оси Ox (>0, если направление положительно, <0 в противном случае)
     property real         ballSpeedRatio:           0.999   // коээцициент уменьшения скорости ball
     property real         ballCurrentSpeed:         15      // текущая скорость ball
-    // property int          ballCheckDelay:           250     //
     property int          ballCurrentCheckDelay:    0       // текущее время нахождения ball внутри container
     property int          ballMaxCheckDelay:        9000    // максимальное время нахождения ball внутри container, по окончании ball уходит за границы
+
+    Timer {
+        id: randomMoveTimer
+        interval: 30000
+        running: true
+        repeat: true
+        onTriggered: {
+            console.log("random");
+            targetX.push(Math.random() * (container.width - berry.width/2 - berryEnvironment.width) + berry.width/2);
+            targetY.push(Math.random() * (container.height - berry.height/2 - berryEnvironment.height) + berry.height/2);
+            _moveBerryTimer.start();
+        }
+    }
+    Timer {
+        id: randomSpriteTimer
+        interval: 1500
+        running: false
+        repeat: true
+        onTriggered: {
+            stopSprites();
+            berry.children[Math.ceil(Math.random() * berry.children.length - 1)].visible = true;
+        }
+    }
 
     Timer {
         id: moveTimer
@@ -88,7 +109,6 @@ ApplicationWindow {
             moveTimer.running = true;
 
             console.log("charging disabled");
-            //TODO добавить анимацию ухода chargingModule
             activationChargeTimer.running = false;
             waitChargingTimer.running = true;
         }
@@ -100,20 +120,23 @@ ApplicationWindow {
         interval: disabledChargindInterval * 1000
         onTriggered: {
             if (posX > berryEnvironment.x + berry.x && posX < berryEnvironment.x + berry.x + berry.width && posY > berryEnvironment.y + berry.y && posY < berryEnvironment.y + berry.y + berry.height) {
-                if (rawPosX > chargingModule.x && rawPosX < chargingModule.x + chargingModule.width && rawPosY > chargingModule.y && rawPosY < chargingModule.y + chargingModule.height){
-                    // waitChargingTimer.interval += disabledChargindInterval;
-                    console.log("charging block");
-                }
+                console.log("charging block");
             }
             else {
                 console.log("charging enabled");
                 waitChargingTimer.running = false;
                 activationChargeTimer.running = true;
-                //TODO добавить анимацию появления chargingModule
                 chargingModule.visible = true;
             }
         }
     }
+    Timer {
+        id: enablingChargeTimer
+        running: false
+        repeat: true
+
+    }
+
     Timer {
         id: activationChargeTimer
         running: true
@@ -190,8 +213,6 @@ ApplicationWindow {
         running: false
         interval: 15
         onTriggered: {
-            // console.log(ballCheckDelay, ballCurrentSpeed);
-            // console.log(ballCurrentCheckDelay);
             ballCurrentCheckDelay += ballMoveTimer.interval
             ballMove();
         }
@@ -264,7 +285,6 @@ ApplicationWindow {
         running: false
         interval: 2000
         onTriggered: {
-            //TODO animation ухода текста
             textToDialog.text = "";
             dialog.visible = false;
 
@@ -311,7 +331,8 @@ ApplicationWindow {
         id: _defaultStatusTimer
         repeat: false
         running: false
-        interval: 0
+        interval: 7
+        // triggeredOnStart: true
         onTriggered: {
             standBerry();
             console.log("сработал таймер ОР");
@@ -476,6 +497,7 @@ ApplicationWindow {
             else {
                 firstTrigger = true;
 
+                eyesDown.visible = false;
                 eyesInSomewhere.visible = true;
                 console.log("сработало выключение глазка в куда-то");
             }
@@ -527,12 +549,11 @@ ApplicationWindow {
             }
         }
     }
-
     Timer {
         id: _holdHeadTimer
         repeat: false;
         running: false
-        interval: holdHead.frameCount * holdHead.frameDuration - 1000
+        interval: holdHead.frameCount * holdHead.frameDuration
         triggeredOnStart: true
         onTriggered: {
             // holdHead.visible = !holdHead.visible;
@@ -555,11 +576,19 @@ ApplicationWindow {
     }
 
     Timer {
+        id: waitTimer
+        interval: 1500
+        repeat: false
+        running: false
+    }
+
+    Timer {
         id: mainInDayTimer
         repeat: true
         running: false
         interval: 3
         onTriggered: {
+            randomMoveTimer.stop();
             if (lastActionIndex < actions.length) {
                 if (actions[lastActionIndex].running === false) {
                     lastActionIndex += 1
@@ -571,10 +600,16 @@ ApplicationWindow {
             else {
                 console.log("конец")
                 dayProcess = false;
+                randomMoveTimer.start();
                 mainInDayTimer.running = false;
             }
         }
     }
+    Timer {
+        id: exitTimer;
+        onTriggered: Qt.quit();
+    }
+
 
     function stopSprites(){
         standTimer.running=false
@@ -636,40 +671,6 @@ ApplicationWindow {
         let topCheck    = Math.abs(ball.y)                                  < ballCurrentSpeed
         let leftCheck   = Math.abs(ball.x)                                  < ballCurrentSpeed
         let bottomCheck = Math.abs(ball.y + ball.height - container.height) < ballCurrentSpeed
-        // console.log(rightCheck, topCheck, leftCheck, bottomCheck);
-
-        // // проверка касания границы Berry
-        // let rightBerryCheck  = Math.abs(ball.x + ball.width - berryEnvironment.x - berry.x)   < ballCurrentSpeed && berryEnvironment.y + berry.y - berry.height/10 < ball.y + ball.height/2 && ball.y + ball.height/2 < berryEnvironment.y + berry.y + berry.height*11/10 && ball.x < berryEnvironment.x + berry.x
-        // let topBerryCheck    = Math.abs(ball.y - berryEnvironment.y - berry.y - berry.height) < ballCurrentSpeed && berryEnvironment.x + berry.x - berry.width/10  < ball.x + ball.widht/2  && ball.x + ball.widht/2  < berryEnvironment.x + berry.x + berry.width *11/10 && ball.y > berryEnvironment.y + berry.y + berry.height
-        // let leftBerryCheck   = Math.abs(ball.x - berryEnvironment.x - berry.x - berry.width)  < ballCurrentSpeed && berryEnvironment.y + berry.y - berry.height/10 < ball.y + ball.height/2 && ball.y + ball.height/2 < berryEnvironment.y + berry.y + berry.height*11/10 && ball.x > berryEnvironment.x + berry.x + berry.width
-        // let bottomBerryCheck = Math.abs(ball.y + ball.height - berryEnvironment.x - berry.x)  < ballCurrentSpeed && berryEnvironment.x + berry.x - berry.width/10  < ball.x + ball.widht/2  && ball.x + ball.widht/2  < berryEnvironment.x + berry.x + berry.width *11/10 && ball.y < berryEnvironment.y + berry.y
-
-        // // проверка касания блока зарядки (может коснуться только сверху и справа)
-        // let leftChargeCheck   = Math.abs(ball.x - chargingModule.x - chargingModule.width)                < ballCurrentSpeed && chargingModule.y < ball.y && ball.y < chargingModule.y + chargingModule.height
-        // let bottomChargeCheck = Math.abs(ball.y + ball.height - chargingModule.y - chargingModule.height) < ballCurrentSpeed && chargingModule.x < ball.x && ball.x < chargingModule.x + chargingModule.width
-
-        // // console.log(Math.abs(ball.y + ball.height - container.height));
-        // // console.log(rightBerryCheck, topBerryCheck, leftBerryCheck, bottomBerryCheck, ballCurrentCheckDelay, ballCheckDelay);
-        // // console.log(Math.abs(ball.y - berryEnvironment.y - berry.y - berry.height));
-
-
-        // if (ballCurrentCheckDelay > ballCheckDelay) {
-        //     if (rightBerryCheck || topBerryCheck || leftBerryCheck || bottomBerryCheck) {
-        //         console.log(rightBerryCheck, topBerryCheck, leftBerryCheck, bottomBerryCheck);
-        //         // console.log(Math.abs(ball.x + ball.width - berryEnvironment.x - berry.x), ballCurrentSpeed)
-        //         // console.log(berryEnvironment.y + berry.y - berry.height/4, ball.y,  ball.y,  berryEnvironment.y + berry.y + berry.height*5/4);
-        //         // ballMoveTimer.running = false;
-        //     }
-        //     if (leftCheck || rightCheck || leftBerryCheck || rightBerryCheck || leftChargeCheck) {
-        //         ballTg = -ballTg;                   // тангенс угла наклона к Ox меняется на противоположный
-        //         ballOxDirection = -ballOxDirection; // меняет направление удара по оси Ox
-        //     }
-        //     else if (topCheck || bottomCheck || topBerryCheck || bottomBerryCheck || bottomChargeCheck) {
-        //         ballTg = -ballTg;                   // тангенс угла наклона к Ox меняется на противоположный в любом случае после столкновения
-        //     }
-        // }
-        // else {
-        // }
         if (ballCurrentCheckDelay > ballMaxCheckDelay) {
             rightCheck  = false
             topCheck    = false
@@ -811,9 +812,6 @@ ApplicationWindow {
     }
 
 
-
-
-
     function setHappyBerry(){
         stand.source = "images/Berry/happy/stand_5.svg";
         standFirstFrame.source = "images/Berry/happy/stand_5.svg";
@@ -871,8 +869,13 @@ ApplicationWindow {
         actions.push(_moveBerryTimer);
     }
     // Появление списка задач
-    function _toDoList() {
-        actions.push(_toDoListTimer);
+    function _toDoList(otherText) {
+        if (textToToDoList.text !== ""){
+            actions.push(_toDoListTimer);
+        }
+        else {
+            _addText(otherText);
+        }
     }
     // Бэри думает
     function _thinkBerry(){
@@ -913,29 +916,10 @@ ApplicationWindow {
 
     // Запуск в конце каждого дня
     function startDay() {
-        // _defaultMode();
+        _defaultMode();
         dayProcess = true
         actions[0].running = true;
         mainInDayTimer.running = true;
-        // TODO передать C++, что сюжет рассказан до конца
-    }
-
-    function test() {
-        _addText("Глаза внизу");
-        _holdHead();
-        _toDoList();
-        // _hiSadBerry();
-        // _eyesDown();
-        // _eyesUp();
-        // _addText("Подержим глаза внизу");
-        // _eyesDown();
-        // _eyesBottom();
-        // _eyesUp();
-        // _addText("Теперь где-то");
-        // _eyesSomewhere();
-        // _eyesInSomewhere();
-        // _eyesOnPlayer();
-        startDay();
     }
 
     function day_1(toDoListText) {
@@ -994,9 +978,9 @@ ApplicationWindow {
     function day_2(toDoListText) {
         textToToDoList.text = toDoListText;
         _hiBerry();
-        _addText("Привет! Давно не виделись! (∗  ̶ ˃ ᵕ ˂ ̶ ∗ )");
+        _addText("Привет! Давно не виделись! \n(∗  ̶ ˃ ᵕ ˂ ̶ ∗ )");
         _smileBerry();
-        _addText("Я уже соскучился по тебе...(｡•́︿•̀｡)");
+        _addText("Я уже соскучился по тебе...\n(｡•́︿•̀｡)");
         _addText("Как твои дела? Как ты сам?");
         _defaultMode();
         _addText("А, кстати, вот твой список сегодняшних дел:");
@@ -1056,7 +1040,8 @@ ApplicationWindow {
         startDay();
     }
 
-    function day_5(){
+    function day_5(toDoListText){
+        textToToDoList.text = toDoListText;
         setSadBerry();
         _eyesDown();
         _eyesBottom();
@@ -1080,7 +1065,8 @@ ApplicationWindow {
         startDay();
     }
 
-    function day_6(){
+    function day_6(toDoListText){
+        textToToDoList.text = toDoListText;
         setSadBerry();
         _addText("И вновь привет...");
         _eyesDown();
@@ -1093,7 +1079,8 @@ ApplicationWindow {
         startDay();
     }
 
-    function day_7(){
+    function day_7(toDoListText){
+        textToToDoList.text = toDoListText;
         setSadBerry();
         _eyesDown();
         _eyesBottom();
@@ -1110,7 +1097,10 @@ ApplicationWindow {
         startDay();
     }
 
-    function day_8(){
+    function day_8(toDoListText) {
+        randomSpriteTimer.start();
+        symbolSound.source = "audio/bugBerry.wav";
+        textToToDoList.text = toDoListText;
         setCrazyBerry();
         _addText("Я... Рад... видеть... тебя...");
         _addText("Помоги мне...");
@@ -1122,12 +1112,27 @@ ApplicationWindow {
         startDay();
     }
 
+    function day_9(toDoListText) {
+        stopSprites();
+        standFirstFrame.visible = true;
+        for (let i = 0; i <= 7; i++) {
+            actions.push(waitTimer);
+            _addText("Почему?");
+        }
 
+        actions.push(exitTimer);
+        day_9_Sound.play();
+        startDay();
+    }
+
+    function day_0(toDoList) {
+        textToToDoList.text = toDoList;
+        _toDoList("Не удалось загрузить задания на сегодня");
+        startDay()
+    }
 
     QSystemTrayIcon {
         id: systemTray
-
-        // Инициализация
         Component.onCompleted: {
             icon = iconTray
             toolTip = "Berry"
@@ -1146,28 +1151,13 @@ ApplicationWindow {
         width: 70
         font: balsamiq.name
         MenuItem {
-            // MouseArea {
-            //     onPositionChanged: {
-            //         console.log(mouse.x)
-            //         console.log(mouse.y)
-            //         menuPosX = mouse.x + rawPosX;
-            //         menuPosY = mouse.y + rawPosY;
-            //     }
-            // }
+            
             id: activeMenuItem
-            // background: Rectangle {
-            //     id: activeMenuItemBackground
-            //     color: "#EEE3FA"
-            //     width: parent.width
-            //     height: parent.height
-            // }
             contentItem: Text {
                 id: activeMenuItemText
                 text: qsTr("Active")
-                // color: "#4F0063"
             }
             onTriggered: {
-                // menuVisible = false
                 if (!isSay && stopChargingTimer.running === false && dayProcess === false) {
                     moveTimer.running = true;
                     activationChargeTimer.running = true;
@@ -1177,11 +1167,7 @@ ApplicationWindow {
         MenuItem {
             id: exitMenuItem
             text:qsTr("Exit")
-            // background: Rectangle {
-            //     color: "#EEE3FA"
-            // }
             onTriggered: {
-                // menuVisible = false
                 systemTray.hide()
                 Qt.quit()
             }
@@ -1200,26 +1186,26 @@ ApplicationWindow {
         id: ballKickSound
         source: "audio/ballKick.wav"
     }
+    SoundEffect {
+        id: day_9_Sound
+        source: "audio/day_9.wav"
+    }
 
     Rectangle {
         id: container
         anchors.fill: parent
         color: "transparent"
-        // border.color: "red"
-        // border.width: 2
         MouseArea {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             anchors.fill: parent
             hoverEnabled: true
 
             onClicked: {
-                // menuVisible = false
-                // console.log("CLICK:");
-                // console.log(!isSay && stopChargingTimer.running === false && activeChargeCounter === 0 && action_1_stopTimer.running === false && action_2_stopTimer.running === false && action_3_stopTimer.running === false)
                 if (!isSay && stopChargingTimer.running === false && activeChargeCounter === 0 &&
                         action_1_stopTimer.running === false && action_2_stopTimer.running === false && action_3_stopTimer.running === false &&
-                        /*withBall === false &&*/ dayProcess === false) {
+                        withBall === false && dayProcess === false) {
                     if (rawPosX > berryEnvironment.x + berry.x && rawPosX < berryEnvironment.x + berry.x + berry.width && rawPosY > berryEnvironment.y + berry.y && rawPosY < berryEnvironment.y + berry.y + berry.height) {
+                        randomMoveTimer.stop();
                         if (mouse.button === Qt.RightButton) {
                             console.log("пкм")
                             kickBall();
@@ -1230,9 +1216,10 @@ ApplicationWindow {
                     }
                     else {
                         console.log("лкм мимо")
-                        moveTimer.running = false; // Включение режима ходьбы
+                        randomMoveTimer.start();
+                        moveTimer.running = false;             // Выключение режима ходьбы
                         activationChargeTimer.running = false; // Выключение зарядки
-                        standBerryFirstFrame(); // Акивация спрайта "стою и ничего не делаю"
+                        standBerryFirstFrame();                // Акивация спрайта "стою и ничего не делаю"
                         mainWindow.flags = Qt.FramelessWindowHint | Qt.WindowTransparentForInput | Qt.WindowStaysOnTopHint // Флаги безоконного приложения над всеми окнами
                     }
                 }
@@ -1276,20 +1263,8 @@ ApplicationWindow {
             width: 405
             height: 300
             color: "transparent"
-            // border.color: "green"
-            // border.width: 2
             x: container.width/2 - berry.width/2
             y: container.height/2 - berryEnvironment.height + berry.height/2
-
-            // Rectangle {
-            //     width: 297
-            //     height: 110
-            //     color: "tarnsperent"
-            //     border.width: 2
-            //     // border.color: "red"
-            //     anchors.right: parent.right
-            //     anchors.top: parent.top
-            // }
 
             Image {
                 id: dialog
@@ -1310,8 +1285,6 @@ ApplicationWindow {
                 height: 110
                 anchors.right: parent.right
                 anchors.top: parent.top
-                // anchors.rightMargin: 10
-                // anchors.topMargin: 10
             }
             Text {
                 id: textToToDoList
@@ -1376,8 +1349,6 @@ ApplicationWindow {
                 width: 200
                 height: 200
                 color: "transparent"
-                // border.color: "green"
-                // border.width: 3
                 anchors.left: parent.left
                 anchors.bottom: parent.bottom
 
@@ -1388,8 +1359,6 @@ ApplicationWindow {
                     width: 200
                     height: 200
                     source: "images/Berry/happy/stand_5.svg"
-                    frameWidth: 650
-                    frameHeight: 650
                     frameCount: 5
                     frameDuration: 200
                 }
@@ -1416,8 +1385,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/happy/moveRight_8.svg"
                     frameCount: 8
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
@@ -1429,8 +1396,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/happy/moveLeft_8.svg"
                     frameCount: 8
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
@@ -1442,8 +1407,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/happy/moveBottom_6.svg"
                     frameCount: 6
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
@@ -1455,8 +1418,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/happy/moveTop_6.svg"
                     frameCount: 6
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
 
@@ -1469,8 +1430,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/charging.svg"
                     frameCount: 39
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
 
@@ -1483,8 +1442,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/kickBallStart.svg"
                     frameCount: 33
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
@@ -1496,8 +1453,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/kickBallEnd.svg"
                     frameCount: 18
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
 
@@ -1510,8 +1465,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/action_1.svg"
                     frameCount: 11
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
@@ -1523,8 +1476,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/action_2.svg"
                     frameCount: 14
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
@@ -1536,8 +1487,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/action_3.svg"
                     frameCount: 19
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
 
@@ -1550,8 +1499,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/hi.svg"
                     frameCount: 19
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
 
                 }
@@ -1564,8 +1511,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/thinking.svg"
                     frameCount: 24
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
@@ -1577,8 +1522,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/smiling.svg"
                     frameCount: 12
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
@@ -1590,8 +1533,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/eyesOnPlayer.svg"
                     frameCount: 3
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 700
                 }
                 AnimatedSprite {
@@ -1603,8 +1544,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/eyesDown.svg"
                     frameCount: 3
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 700
                 }
                 AnimatedSprite {
@@ -1616,8 +1555,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/eyesBottom.svg"
                     frameCount: 4
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 700
                 }
                 AnimatedSprite {
@@ -1629,8 +1566,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/eyesUp.svg"
                     frameCount: 3
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 700
                 }
                 AnimatedSprite {
@@ -1642,8 +1577,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/eyesSomewhere.svg"
                     frameCount: 3
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 700
                 }
                 AnimatedSprite {
@@ -1655,8 +1588,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/eyesInSomewhere.svg"
                     frameCount: 8
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 350
                 }
                 AnimatedSprite {
@@ -1668,8 +1599,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/holdHead.svg"
                     frameCount: 19
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
                 AnimatedSprite {
@@ -1681,8 +1610,6 @@ ApplicationWindow {
                     height: 200
                     source: "images/Berry/toDoListWow.svg"
                     frameCount: 27
-                    frameWidth: 650
-                    frameHeight: 650
                     frameDuration: 125
                 }
 
@@ -1704,8 +1631,6 @@ ApplicationWindow {
             width: 77
             height: 77
             color: "transparent"
-            // border.color: "red"
-            // border.width: 2
             x: berryEnvironment.x + berry.x
             y: berryEnvironment.y + berry.y + berry.height - ball.height
             Image {

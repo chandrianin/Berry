@@ -2,16 +2,18 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Berry VERSION 0.1 LANGUAGES CXX)
 
-
+set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.6.3/mingw_64/lib/cmake")
+
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc")
 
 include(FetchContent)
 FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
         GIT_TAG 3b15fa82ea74739b574d705fea44959b58142eb8) # Replace with your desired git commit from: https://github.com/libcpr/cpr/releases
 FetchContent_MakeAvailable(cpr)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Quick Widgets QuickWidgets)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Quick Widgets QuickWidgets)
 
 
 set(CMAKE_AUTORCC ON)
@@ -41,8 +43,9 @@ qt_add_qml_module(appBerry
         RESOURCES audio/singleBerryTalk.wav audio/berryTalk.mp3 audio/ballKick.wav
 
         RESOURCES font/BalsamiqSans-BoldItalic.ttf
-        RESOURCES images/appIcons/favicon.ico images/appIcons/favicon.rc images/appIcons/trayIcon.png images/Berry/crazy/moveBottom_6.svg images/Berry/crazy/moveLeft_8.svg images/Berry/crazy/moveRight_8.svg images/Berry/crazy/stand_5.svg images/Berry/happy/moveBottom_6.svg images/Berry/happy/moveLeft_8.svg images/Berry/happy/moveRight_8.svg images/Berry/happy/moveTop_6.svg images/Berry/happy/stand_5.svg images/Berry/sad/moveBottom_6.png images/Berry/sad/moveBottom_6.svg images/Berry/sad/moveLeft_8.png images/Berry/sad/moveLeft_8.svg images/Berry/sad/moveRight_8.png images/Berry/sad/moveRight_8.svg images/Berry/sad/stand_5.png images/Berry/sad/stand_5.svg images/Berry/action_1.svg images/Berry/action_2.svg images/Berry/action_3.svg images/Berry/charging.svg images/Berry/eyesBottom.svg images/Berry/eyesDown.svg images/Berry/eyesInSomewhere.svg images/Berry/eyesOnPlayer.svg images/Berry/eyesSomewhere.svg images/Berry/eyesUp.svg images/Berry/hi.svg images/Berry/holdHead.svg images/Berry/kickBallEnd.svg images/Berry/kickBallStart.svg images/Berry/sadHi.svg images/Berry/smiling.svg images/Berry/thinking.svg images/Berry/toDoListWow.svg images/environment/ball.svg images/environment/chargingModule.svg images/environment/dialog.svg images/environment/toDoList.svg
-        RESOURCES images/appIcons/favicon.ico images/appIcons/favicon.rc images/appIcons/trayIcon.png images/Berry/crazy/moveBottom_6.svg images/Berry/crazy/moveLeft_8.svg images/Berry/crazy/moveRight_8.svg images/Berry/crazy/stand_5.svg images/Berry/happy/moveBottom_6.svg images/Berry/happy/moveLeft_8.svg images/Berry/happy/moveRight_8.svg images/Berry/happy/moveTop_6.svg images/Berry/happy/stand_5.svg images/Berry/sad/moveBottom_6.png images/Berry/sad/moveBottom_6.svg images/Berry/sad/moveLeft_8.png images/Berry/sad/moveLeft_8.svg images/Berry/sad/moveRight_8.png images/Berry/sad/moveRight_8.svg images/Berry/sad/stand_5.png images/Berry/sad/stand_5.svg images/Berry/action_1.svg images/Berry/action_2.svg images/Berry/action_3.svg images/Berry/charging.svg images/Berry/eyesBottom.svg images/Berry/eyesDown.svg images/Berry/eyesInSomewhere.svg images/Berry/eyesOnPlayer.svg images/Berry/eyesSomewhere.svg images/Berry/eyesUp.svg images/Berry/hi.svg images/Berry/holdHead.svg images/Berry/kickBallEnd.svg images/Berry/kickBallStart.svg images/Berry/sadHi.svg images/Berry/smiling.svg images/Berry/thinking.svg images/Berry/toDoListWow.svg images/environment/ball.svg images/environment/chargingModule.svg images/environment/dialog.svg images/environment/toDoList.png images/environment/toDoList.svg
+        RESOURCES images/appIcons/favicon.ico images/appIcons/favicon.rc images/appIcons/trayIcon.png images/Berry/crazy/moveBottom_6.svg images/Berry/crazy/moveLeft_8.svg images/Berry/crazy/moveRight_8.svg images/Berry/crazy/stand_5.svg images/Berry/happy/moveBottom_6.svg images/Berry/happy/moveLeft_8.svg images/Berry/happy/moveRight_8.svg images/Berry/happy/moveTop_6.svg images/Berry/happy/stand_5.svg images/Berry/sad/moveBottom_6.png images/Berry/sad/moveBottom_6.svg images/Berry/sad/moveLeft_8.png images/Berry/sad/moveLeft_8.svg images/Berry/sad/moveRight_8.png images/Berry/sad/moveRight_8.svg images/Berry/sad/stand_5.png images/Berry/sad/stand_5.svg images/Berry/action_1.svg images/Berry/action_2.svg images/Berry/action_3.svg images/Berry/charging.svg images/Berry/eyesBottom.svg images/Berry/eyesDown.svg images/Berry/eyesInSomewhere.svg images/Berry/eyesOnPlayer.svg images/Berry/eyesSomewhere.svg images/Berry/eyesUp.svg images/Berry/hi.svg images/Berry/holdHead.svg images/Berry/kickBallEnd.svg images/Berry/kickBallStart.svg images/Berry/sadHi.svg images/Berry/smiling.svg images/Berry/thinking.svg images/Berry/toDoListWow.svg images/environment/ball.svg images/environment/chargingModule.svg images/environment/dialog.svg images/environment/toDoList.png
+        RESOURCES audio/bugBerry.wav audio/day_9.wav
+
 
 )
 
@@ -60,13 +63,14 @@ FetchContent_GetProperties(cpr)
 if(NOT cpr_POPULATED)
     FetchContent_Populate(cpr)
 endif()
+
 target_include_directories(appBerry PRIVATE ${cpr_BINARY_DIR}/include)
 target_link_libraries(appBerry PRIVATE cpr)
-set(PATH_TO_CPR_LIBS "images/appIcons")
+set(PATH_TO_CPR_LIBS "libs")
 
 file(GLOB LIBS_FILES "${PATH_TO_CPR_LIBS}/*")
 foreach(file ${LIBS_FILES})
-    # install(FILES ${file} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    install(FILES ${file} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     file(COPY ${file} DESTINATION "/")
 endforeach()
 
@@ -94,6 +98,7 @@ endforeach()
 
 set(QT_PATH "C:/Qt/6.6.3/mingw_64")
 # add_custom_command(TARGET appBerry POST_BUILD
-#     COMMAND "${QT_PATH}/bin/windeployqt.exe" --release $<TARGET_FILE:appBerry>
+#     COMMAND "${QT_PATH}/bin/windeployqt6.exe" --release $<TARGET_FILE:appBerry> -- qmldir "D:/Berry" "D:/Berry/build/Desktop_Qt_6_6_3_MinGW_64_bit-Release/appBerry.exe"
 #     COMMENT "Deploying dependencies with windeployqt"
 # )
+set_target_properties(appBerry PROPERTIES AUTOMOC ON)
